@@ -8,4 +8,27 @@ Email
     verkey Text Maybe
     UniqueEmail email
 
- -- By default this file is used in Model.hs (which is imported by Foundation.hs)
+Document
+    title Text
+    uploadedBy UserId
+    uploadedOn UTCTime default=now()
+    hash Text
+    content Text
+    UniqueDocument hash
+
+TokenType
+    text Text
+    tokenCategory TokenCategory
+    UniqueTokenType text
+
+Bigram
+    fstToken TokenTypeId
+    sndToken TokenTypeId
+    UniqueBigram fstToken sndToken
+
+TokenChain
+    bigram BigramId
+    next TokenTypeId
+    frequency Int
+    UniqueChain bigram next
+
