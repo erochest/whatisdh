@@ -1,0 +1,16 @@
+
+header {
+    margin: 3em 4em;
+}
+
+footer {
+    margin: 3em 4em;
+    text-align: center;
+    font-size: 0.85em;
+    color: #ddd;
+}
+
+#main {
+    margin: 0em 4em;
+}
+

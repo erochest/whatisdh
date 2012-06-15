@@ -24,6 +24,18 @@
     <body>
         <div class="container">
             <header>
+              <div .navbar>
+                <div .navbar-inner>
+                  <div .container>
+                    <a .brand href=@{HomeR}>
+                      What is DH?
+                    <ul .nav.pull-right>
+                      <li .pull-right>
+                        $maybe _ <- maid
+                          <a href=@{AuthR LogoutR}>Logout
+                        $nothing
+                          <a href=@{AuthR LoginR}>Login
+            <div .clearfix>
             <div id="main" role="main">
               ^{pageBody pc}
             <footer>
