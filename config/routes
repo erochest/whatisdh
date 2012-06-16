@@ -6,7 +6,7 @@
 
 / HomeR GET
 
--- /about               AboutR        GET
+/about               AboutR        GET
 -- /document            DocumentListR GET POST (maybe list all, maybe display the form)
 -- /document/add        DocumentAddR  GET POST (maybe fold into DocumentListR)
 -- /document/DocumentId DocumentR     GET POST

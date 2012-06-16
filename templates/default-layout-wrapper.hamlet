@@ -30,6 +30,12 @@
                     <a .brand href=@{HomeR}>
                       What is DH?
                     <ul .nav.pull-right>
+                      <li>
+                        <a href=@{HomeR}>
+                          Home
+                      <li>
+                        <a href=@{AboutR}>
+                          About
                       <li .pull-right>
                         $maybe _ <- maid
                           <a href=@{AuthR LogoutR}>Logout
