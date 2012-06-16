@@ -12,6 +12,6 @@ import Import
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler RepHtml
 getHomeR = defaultLayout $ do
-    setTitle "Welcome To Yesod!"
+    setTitle "What is DH?"
     $(widgetFile "homepage")
 
