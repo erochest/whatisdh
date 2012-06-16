@@ -36,10 +36,14 @@
                       <li>
                         <a href=@{AboutR}>
                           About
-                      <li .pull-right>
-                        $maybe _ <- maid
+                      $maybe user <- mauth
+                        <li>
                           <a href=@{AuthR LogoutR}>Logout
-                        $nothing
+                        <li>
+                          <a href='#'>
+                            #{userIdent (entityVal user)}
+                      $nothing
+                        <li>
                           <a href=@{AuthR LoginR}>Login
             <div .clearfix>
             <div id="main" role="main">
