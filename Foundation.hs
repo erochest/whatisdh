@@ -92,8 +92,10 @@ instance Yesod App where
         -- value passed to hamletToRepHtml cannot be a widget, this allows
         -- you to use normal widget features in default-layout.
 
-        mauth <- maybeAuth
+
         pc <- widgetToPageContent $ do
+            muser  <- lift maybeAuth
+            let navbar = $(widgetFile "navbar")
             $(widgetFile "normalize")
             addStylesheet $ StaticR css_bootstrap_css
             addStylesheet $ StaticR css_style_css

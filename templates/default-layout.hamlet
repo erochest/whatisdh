@@ -1,9 +1,9 @@
 <header>
+  ^{navbar}
 <div .clearfix>
 <div #main role="main">
+  $maybe msg <- mmsg
+    <div #message .alert>#{msg}
   ^{widget}
 <footer>
   #{extraCopyright $ appExtra $ settings master}
-$maybe msg <- mmsg
-    <div #message .alert>#{msg}
-^{widget}

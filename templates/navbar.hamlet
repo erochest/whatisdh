@@ -1,0 +1,21 @@
+<div .navbar>
+  <div .navbar-inner>
+    <div .container>
+      <a .brand href=@{HomeR}>
+        What is DH?
+      <ul .nav.pull-right>
+        <li>
+          <a href=@{HomeR}>
+            Home
+        <li>
+          <a href=@{AboutR}>
+            About
+        $maybe user <- muser
+          <li>
+            <a href=@{AuthR LogoutR}>Logout
+          <li>
+            <a href='#'>
+              #{userIdent (entityVal user)}
+        $nothing
+          <li>
+            <a href=@{AuthR LoginR}>Login
