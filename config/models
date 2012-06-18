@@ -1,13 +1,10 @@
 User
     ident Text
     password Text Maybe
+    super Bool default=False
+    admin Bool default=False
     UniqueUser ident
     deriving Show
-Email
-    email Text
-    user UserId Maybe
-    verkey Text Maybe
-    UniqueEmail email
 
 Document
     title Text
