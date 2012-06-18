@@ -11,6 +11,7 @@
 -- /document/add        DocumentAddR  GET POST (maybe fold into DocumentListR)
 -- /document/DocumentId DocumentR     GET POST
 
-/user                UserListR     GET
-/user/#UserId         UserR         GET POST
-/user/#UserId/delete  UserDelR      POST
+/user                 UserListR     GET
+/user/#UserId         UserR         GET POST DELETE
+/user/#UserId/edit    UserEditR     GET
+

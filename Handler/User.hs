@@ -3,7 +3,8 @@ module Handler.User
     ( getUserListR
     , getUserR
     , postUserR
-    , postUserDelR
+    , deleteUserR
+    , getUserEditR
     ) where
 
 import           Data.Monoid
@@ -24,6 +25,9 @@ getUserR uid = defaultLayout $ do
 postUserR :: UserId -> Handler RepHtml
 postUserR uid = undefined
 
-postUserDelR :: UserId -> Handler RepHtml
-postUserDelR uid = undefined
+deleteUserR :: UserId -> Handler RepHtml
+deleteUserR uid = undefined
+
+getUserEditR :: UserId -> Handler RepHtml
+getUserEditR uid = undefined
 
