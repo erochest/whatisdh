@@ -7,5 +7,9 @@ $else
         <a href=@{UserR (entityKey user)}>#{userIdent (entityVal user)}</a> #
         $if userSuper (entityVal user)
           <i .icon-plane></i> #
+        $else
+          <i .icon-remove></i> #
         $if userAdmin (entityVal user)
           <i .icon-cog></i> #
+        $else
+          <i .icon-remove></i> #

@@ -1,0 +1,19 @@
+<dl>
+  <dt>Identifier
+  <dd>#{userIdent user}
+
+  <dt>Superuser
+  <dd>
+    $if userSuper user
+      <i .icon-plane>
+    $else
+      <i .icon-remove>
+
+  <dt>Administrator
+  <dd>
+    $if userAdmin user
+      <i .icon-cog>
+    $else
+      <i .icon-remove>
+<a .btn.btn-primary href=@{UserR uid}>
+  Edit

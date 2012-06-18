@@ -6,7 +6,8 @@ module Handler.User
     , postUserDelR
     ) where
 
-import Import
+import           Data.Monoid
+import           Import
 
 getUserListR :: Handler RepHtml
 getUserListR = defaultLayout $ do
@@ -15,7 +16,10 @@ getUserListR = defaultLayout $ do
     $(widgetFile "userlist")
 
 getUserR :: UserId -> Handler RepHtml
-getUserR uid = undefined
+getUserR uid = defaultLayout $ do
+    user <- lift . runDB $ get404 uid
+    setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user
+    $(widgetFile "user")
 
 postUserR :: UserId -> Handler RepHtml
 postUserR uid = undefined
