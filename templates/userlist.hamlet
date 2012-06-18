@@ -1,0 +1,11 @@
+$if null users
+  <p>No users.
+$else
+  <ul>
+    $forall user <- users
+      <li>
+        <a href=@{UserR (entityKey user)}>#{userIdent (entityVal user)}</a> #
+        $if userSuper (entityVal user)
+          <i .icon-plane></i> #
+        $if userAdmin (entityVal user)
+          <i .icon-cog></i> #

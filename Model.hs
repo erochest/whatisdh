@@ -1,7 +1,9 @@
+{-# LANGUAGE RankNTypes #-}
 module Model where
 
 import Prelude
 import Yesod
+import Yesod.Auth
 import Data.Text (Text)
 import Data.Time
 import Database.Persist.Quasi
@@ -22,3 +24,18 @@ derivePersistField "TokenCategory"
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith lowerCaseSettings "config/models")
+
+isSuper :: forall m s
+         . ( YesodAuth m
+           , PersistStore (YesodPersistBackend m) (GHandler s m)
+           , YesodPersist m
+           , AuthId m ~ Key (YesodPersistBackend m) (UserGeneric (YesodPersistBackend m))
+           )
+        => GHandler s m AuthResult
+isSuper = do
+    muser <- maybeAuth
+    return $ case muser of
+        Nothing                           -> AuthenticationRequired
+        Just (Entity _ (User _ _ True _)) -> Authorized
+        Just _                            -> Unauthorized "You have to be super."
+

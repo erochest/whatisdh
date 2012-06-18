@@ -82,6 +82,11 @@ instance Yesod App where
         key <- getKey "config/client_session_key.aes"
         return . Just $ clientSessionBackend key 120
 
+    isAuthorized UserListR    _ = isSuper
+    isAuthorized (UserR _)    _ = isSuper
+    isAuthorized (UserDelR _) _ = isSuper
+    isAuthorized _            _ = return Authorized
+
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
