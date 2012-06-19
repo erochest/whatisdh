@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Handler.User
     ( getUserListR
@@ -78,11 +79,16 @@ userForm :: (Yesod m, RenderMessage m FormMessage)
 userForm user = renderBootstrap (userAForm user)
 
 getUserDeleteR :: UserId -> Handler RepHtml
-getUserDeleteR uid = defaultLayout $ [whamlet|
-<p>
-    Don't delete me, dude!
-    |]
+getUserDeleteR uid = do
+    user <- runDB $ get404 uid
+    defaultLayout $(widgetFile "userdelete")
 
 postUserDeleteR :: UserId -> Handler RepHtml
-postUserDeleteR = undefined
+postUserDeleteR uid = do
+    sure :: Int <- runInputPost $ ireq intField "sure"
+    case sure of
+        1 -> do
+            runDB $ delete uid
+            redirect UserListR
+        _ -> redirect $ UserR uid
 

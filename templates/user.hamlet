@@ -18,5 +18,6 @@
 <a .btn.btn-primary href=@{UserEditR uid}>
   Edit
 $if ((/=) currentUserId uid)
+  &nbsp;
   <a .btn .btn-danger href=@{UserDeleteR uid}>
     Delete

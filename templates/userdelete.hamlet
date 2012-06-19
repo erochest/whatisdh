@@ -1,0 +1,6 @@
+<form method="post" action=@{UserDeleteR uid}>
+  <p>
+    Are you sure you want to delete #{userIdent user}?
+  <button .btn .btn-danger type="submit" name="sure" value="1">Yes
+  &nbsp;
+  <button .btn .btn-primary type="submit" name="sure" value="0">No
