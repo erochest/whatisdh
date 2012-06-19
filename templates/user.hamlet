@@ -17,3 +17,6 @@
       <i .icon-remove>
 <a .btn.btn-primary href=@{UserEditR uid}>
   Edit
+$if ((/=) currentUserId uid)
+  <a .btn .btn-danger href=@{UserDeleteR uid}>
+    Delete

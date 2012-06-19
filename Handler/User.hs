@@ -3,8 +3,9 @@ module Handler.User
     ( getUserListR
     , getUserR
     , postUserR
-    , deleteUserR
     , getUserEditR
+    , getUserDeleteR
+    , postUserDeleteR
     , userAForm
     , userForm
     ) where
@@ -12,9 +13,14 @@ module Handler.User
 import           Data.Monoid
 import           Import
 import           Text.Blaze (Markup)
+import           Yesod.Auth
+
+isSameUser :: UserId -> Entity User -> Bool
+isSameUser uid (Entity eid _) = uid == eid
 
 getUserListR :: Handler RepHtml
 getUserListR = do
+    isCurrentUser <- isSameUser <$> requireAuthId
     users <- runDB $ selectList [] [Asc UserIdent]
     defaultLayout $ do
         setTitle "What is DH? Users"
@@ -22,6 +28,7 @@ getUserListR = do
 
 getUserR :: UserId -> Handler RepHtml
 getUserR uid = do
+    currentUserId <- requireAuthId
     user <- runDB $ get404 uid
     defaultLayout $ do
         setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user
@@ -41,9 +48,6 @@ postUserR uid = do
                 else return ()
             redirect $ UserR uid
         _ -> defaultLayout $(widgetFile "useredit")
-
-deleteUserR :: UserId -> Handler RepHtml
-deleteUserR uid = undefined
 
 getUserEditR :: UserId -> Handler RepHtml
 getUserEditR uid = do
@@ -72,4 +76,13 @@ userAForm muser =   User
 userForm :: (Yesod m, RenderMessage m FormMessage)
          => Maybe User -> Markup -> MForm s m (FormResult User, GWidget s m ())
 userForm user = renderBootstrap (userAForm user)
+
+getUserDeleteR :: UserId -> Handler RepHtml
+getUserDeleteR uid = defaultLayout $ [whamlet|
+<p>
+    Don't delete me, dude!
+    |]
+
+postUserDeleteR :: UserId -> Handler RepHtml
+postUserDeleteR = undefined
 

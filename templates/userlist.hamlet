@@ -13,3 +13,6 @@ $else
           <i .icon-cog></i> #
         $else
           <i .icon-remove></i> #
+        $if (not $ isCurrentUser user)
+          <a .btn .btn-danger href=@{UserDeleteR (entityKey user)}>
+            Delete
