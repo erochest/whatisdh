@@ -3,7 +3,7 @@ User
     super Bool default=False
     admin Bool default=False
     UniqueUser ident
-    deriving Show
+    deriving Show Eq
 
 Document
     title Text

@@ -14,28 +14,42 @@ import           Import
 import           Text.Blaze (Markup)
 
 getUserListR :: Handler RepHtml
-getUserListR = defaultLayout $ do
-    users <- lift . runDB $ selectList [] [Asc UserIdent]
-    setTitle "What is DH? Users"
-    $(widgetFile "userlist")
+getUserListR = do
+    users <- runDB $ selectList [] [Asc UserIdent]
+    defaultLayout $ do
+        setTitle "What is DH? Users"
+        $(widgetFile "userlist")
 
 getUserR :: UserId -> Handler RepHtml
-getUserR uid = defaultLayout $ do
-    user <- lift . runDB $ get404 uid
-    setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user
-    $(widgetFile "user")
+getUserR uid = do
+    user <- runDB $ get404 uid
+    defaultLayout $ do
+        setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user
+        $(widgetFile "user")
 
 postUserR :: UserId -> Handler RepHtml
-postUserR uid = undefined
+postUserR uid = do
+    user <- runDB $ get404 uid
+    ((result, form), enctype) <- runFormPost . userForm $ Just user
+    case result of
+        FormSuccess updated -> do
+            if user /= updated
+                then runDB $ update uid [ UserIdent =. userIdent updated
+                                        , UserSuper =. userSuper updated
+                                        , UserAdmin =. userAdmin updated
+                                        ]
+                else return ()
+            redirect $ UserR uid
+        _ -> defaultLayout $(widgetFile "useredit")
 
 deleteUserR :: UserId -> Handler RepHtml
 deleteUserR uid = undefined
 
 getUserEditR :: UserId -> Handler RepHtml
-getUserEditR uid = defaultLayout $ do
-    user <- lift . runDB $ get404 uid
-    ((result, form), enctype) <- lift . runFormPost . userForm $ Just user
-    $(widgetFile "useredit")
+getUserEditR uid = do
+    user <- runDB $ get404 uid
+    ((result, form), enctype) <- runFormPost . userForm $ Just user
+    defaultLayout $(widgetFile "useredit")
 
 userAForm :: (Yesod m, RenderMessage m FormMessage)
           => Maybe User -> AForm s m User
