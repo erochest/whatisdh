@@ -15,5 +15,5 @@
       <i .icon-cog>
     $else
       <i .icon-remove>
-<a .btn.btn-primary href=@{UserR uid}>
+<a .btn.btn-primary href=@{UserEditR uid}>
   Edit

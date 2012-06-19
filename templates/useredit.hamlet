@@ -1,0 +1,11 @@
+<form .form-horizontal method="POST" action=@{UserR uid} enctype=#{enctype}>
+  <fieldset>
+    <legend>Edit #{userIdent user}
+    $case result
+      $of FormFailure reasons
+        $forall reason <- reasons
+          <div .alert .alert-error>#{reason}
+      $of _
+  ^{form}
+  <div .form-actions>
+    <input type="submit" .btn .primary value="Submit">

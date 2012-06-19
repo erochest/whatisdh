@@ -35,7 +35,7 @@ isSuper :: forall m s
 isSuper = do
     muser <- maybeAuth
     return $ case muser of
-        Nothing                           -> AuthenticationRequired
-        Just (Entity _ (User _ _ True _)) -> Authorized
-        Just _                            -> Unauthorized "You have to be super."
+        Nothing                         -> AuthenticationRequired
+        Just (Entity _ (User _ True _)) -> Authorized
+        Just _                          -> Unauthorized "You have to be super."
 
