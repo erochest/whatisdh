@@ -12,6 +12,7 @@
 -- /document/DocumentId DocumentR     GET POST
 
 /user                 UserListR     GET
+/new/user             UserNewR      GET POST
 /user/#UserId         UserR         GET POST
 /user/#UserId/edit    UserEditR     GET
 /user/#UserId/delete  UserDeleteR   GET POST

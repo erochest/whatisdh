@@ -1,6 +1,10 @@
-<form .form-horizontal method="POST" action=@{UserR uid} enctype=#{enctype}>
+<form .form-horizontal method="POST" action=@{action} enctype=#{enctype}>
   <fieldset>
-    <legend>Edit #{userIdent user}
+    <legend>
+      $maybe u <- user
+        Edit #{userIdent u}
+      $nothing
+        New User
     $case result
       $of FormFailure reasons
         $forall reason <- reasons
