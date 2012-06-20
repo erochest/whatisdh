@@ -10,10 +10,9 @@
         <li>
           <a href=@{AboutR}>
             About
+          <li>
+            <a href=@{DocListR}>Documents
         $maybe user <- muser
-          $if userAdmin (entityVal user)
-            <li>
-              <a href=@{DocListR}>Documents
           $if userSuper (entityVal user)
             <li>
               <a href=@{UserListR}>Users
