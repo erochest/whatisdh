@@ -17,3 +17,9 @@
 /user/#UserId/edit    UserEditR     GET
 /user/#UserId/delete  UserDeleteR   GET POST
 
+/document                    DocListR   GET
+/new/document                DocNewR    GET POST
+/document/#DocumentId        DocR       GET POST
+/document/#DocumentId/edit   DocEditR   GET
+/document/#DocumentId/delete DocDeleteR GET POST
+

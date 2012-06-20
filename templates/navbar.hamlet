@@ -11,6 +11,9 @@
           <a href=@{AboutR}>
             About
         $maybe user <- muser
+          $if userAdmin (entityVal user)
+            <li>
+              <a href=@{DocListR}>Documents
           $if userSuper (entityVal user)
             <li>
               <a href=@{UserListR}>Users
