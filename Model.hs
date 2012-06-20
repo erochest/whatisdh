@@ -39,3 +39,17 @@ isSuper = do
         Just (Entity _ (User _ True _)) -> Authorized
         Just _                          -> Unauthorized "You have to be super."
 
+isAdmin :: forall m s
+         . ( YesodAuth m
+           , PersistStore (YesodPersistBackend m) (GHandler s m)
+           , YesodPersist m
+           , AuthId m ~ Key (YesodPersistBackend m) (UserGeneric (YesodPersistBackend m))
+           )
+        => GHandler s m AuthResult
+isAdmin = do
+    muser <- maybeAuth
+    return $ case muser of
+        Nothing -> AuthenticationRequired
+        Just (Entity _ (User _ _ True)) -> Authorized
+        Just _ -> Unauthorized "You have to be an admin."
+
