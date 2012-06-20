@@ -13,6 +13,7 @@ module Handler.Document
     ) where
 
 import           Data.Monoid
+import qualified Data.Text as T
 import           Import
 import           Text.Blaze (Markup)
 import           Yesod.Auth
@@ -20,7 +21,11 @@ import           Yesod.Auth
 -- DocListR
 
 getDocListR :: Handler RepHtml
-getDocListR = undefined
+getDocListR = do
+    docs <- runDB $ selectList [] [Asc DocumentTitle]
+    defaultLayout $ do
+        setTitle "What is DH? Documents"
+        $(widgetFile "doclist")
 
 -- DocNewR
 

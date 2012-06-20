@@ -1,0 +1,7 @@
+$if null docs
+  <p>No documents.
+$else
+  <ul>
+    $forall doc <- docs
+      <li>
+        <a href=@{DocR (entityKey doc)}>#{documentTitle (entityVal doc)}
