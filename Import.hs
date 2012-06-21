@@ -6,6 +6,7 @@ module Import
     , module Settings.Development
     , module Data.Monoid
     , module Control.Applicative
+    , module Utils
     , Text
 #if __GLASGOW_HASKELL__ < 704
     , (<>)
@@ -20,6 +21,7 @@ import Control.Applicative ((<$>), (<*>), pure)
 import Data.Text (Text)
 import Settings.StaticFiles
 import Settings.Development
+import Utils
 
 #if __GLASGOW_HASKELL__ < 704
 infixr 5 <>
