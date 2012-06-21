@@ -74,18 +74,12 @@ postUserNewR = do
         FormSuccess user ->
             (runDB $ insert user) >> redirect (AuthR LoginR)
         FormFailure msgs -> do
-            let msg = mappend "<ul>" $ foldr msgList "</ul>" msgs
-            setMessage $ toHtml msg
+            setMessage $ listToUl msgs
             redirect UserNewR
         FormMissing -> do
             let action = UserNewR
                 user   = Nothing
             defaultLayout $(widgetFile "useredit")
-    where
-        msgList :: Text -> Text -> Text
-        msgList msg rest =
-            "<li>" `mappend` (msg `mappend` ("</li>" `mappend` rest))
-
 
 -- UserEditR
 
