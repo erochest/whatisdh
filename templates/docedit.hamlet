@@ -1,0 +1,15 @@
+<form .form-horizontal method="POST" action=@{action} enctype=#{enctype}>
+  <fieldset>
+    <legend>
+      $maybe doc <- mdoc
+        Edit #{documentTitle doc}
+      $nothing
+        New Document
+    $case result
+      $of FormFailure reasons
+        $forall reason <- reasons
+          <div .alert .alert-error>#{reason}
+      $of _
+    ^{form}
+    <div .form-actions>
+      <input type="submit" .btn .primary value="Submit">

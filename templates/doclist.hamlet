@@ -5,3 +5,5 @@ $else
     $forall doc <- docs
       <li>
         <a href=@{DocR (entityKey doc)}>#{documentTitle (entityVal doc)}
+<div .form-actions>
+  <a .btn .primary href=@{DocNewR}>New Document

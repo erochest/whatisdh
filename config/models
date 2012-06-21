@@ -7,7 +7,7 @@ User
 
 Document
     title Text
-    source Text
+    source Text Maybe
     uploadedBy UserId
     uploadedOn UTCTime default=now()
     hash Text
