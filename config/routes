@@ -7,19 +7,22 @@
 / HomeR GET
 
 /about               AboutR        GET
--- /document            DocumentListR GET POST (maybe list all, maybe display the form)
--- /document/add        DocumentAddR  GET POST (maybe fold into DocumentListR)
--- /document/DocumentId DocumentR     GET POST
 
+-- User routes
 /user                 UserListR     GET
 /new/user             UserNewR      GET POST
 /user/#UserId         UserR         GET POST
 /user/#UserId/edit    UserEditR     GET
 /user/#UserId/delete  UserDeleteR   GET POST
 
+-- Document routes
 /document                    DocListR   GET
 /new/document                DocNewR    GET POST
 /document/#DocumentId        DocR       GET POST
 /document/#DocumentId/edit   DocEditR   GET
 /document/#DocumentId/delete DocDeleteR GET POST
+
+-- Index routes (TokenType, Bigram, and TokenChain)
+/index         IndexR   GET
+/index/reindex ReindexR GET POST
 

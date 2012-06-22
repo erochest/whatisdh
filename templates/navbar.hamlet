@@ -15,6 +15,8 @@
         $maybe user <- muser
           $if userSuper (entityVal user)
             <li>
+              <a href=@{IndexR}>Index
+            <li>
               <a href=@{UserListR}>Users
           <li>
             <a href=@{AuthR LogoutR}>Logout
