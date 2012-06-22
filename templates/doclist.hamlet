@@ -4,6 +4,13 @@ $else
   <ul>
     $forall doc <- docs
       <li>
-        <a href=@{DocR (entityKey doc)}>#{documentTitle (entityVal doc)}
+        <a href=@{DocR (entityKey doc)}>
+          #{documentTitle (entityVal doc)}
+        &nbsp;&mdash;&nbsp;
+        $maybe src <- documentSource (entityVal doc)
+          from #
+          <i>#{src} #
+        on #
+        <i>#{toHtml $ formatRFC1123 (documentUploadedOn (entityVal doc))}
 <div .form-actions>
   <a .btn .primary href=@{DocNewR}>New Document
