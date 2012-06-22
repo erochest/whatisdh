@@ -53,7 +53,7 @@ postDocNewR = do
             now    <- liftIO getCurrentTime
             let (content, hash) = getContent docInfo
                 doc = Document (diTitle docInfo)
-                               (diSource docInfo)
+                               (getSource docInfo)
                                userId
                                now
                                hash
@@ -85,7 +85,7 @@ postDocR docId = do
         FormSuccess updated -> do
             let (content, hash) = getContent updated
             runDB $ update docId [ DocumentTitle   =. diTitle updated
-                                 , DocumentSource  =. diSource updated
+                                 , DocumentSource  =. getSource updated
                                  , DocumentHash    =. hash
                                  , DocumentContent =. content
                                  ]
@@ -156,4 +156,9 @@ getContent dinfo = (content, hash)
                 , (decodeUtf8 . toStrict . fileContent) <$> diFile dinfo
                 ]
           hash = makeHash content
+
+getSource :: DocumentInfo -> Maybe T.Text
+getSource dinfo = listToMaybe $ catMaybes [ diSource dinfo
+                                          , fileName <$> diFile dinfo
+                                          ]
 
