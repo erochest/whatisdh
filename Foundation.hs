@@ -86,8 +86,13 @@ instance Yesod App where
     isAuthorized (UserR _)       _    = isSuper
     isAuthorized (UserEditR _)   _    = isSuper
     isAuthorized (UserDeleteR _) _    = isSuper
+
     isAuthorized (DocEditR _)    _    = isAdmin
     isAuthorized (DocDeleteR _)  _    = isAdmin
+
+    isAuthorized IndexR          _    = isSuper
+    isAuthorized ReindexR        _    = isSuper
+
     isAuthorized _               True = isAdmin
     isAuthorized _               _    = return Authorized
 

@@ -28,10 +28,11 @@ library
                      Settings
                      Settings.StaticFiles
                      Settings.Development
-                     Handler.Home
                      Handler.About
-                     Handler.User
                      Handler.Document
+                     Handler.Home
+                     Handler.Index
+                     Handler.User
                      Utils
 
     if flag(dev) || flag(library-only)
