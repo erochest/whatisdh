@@ -103,6 +103,7 @@ postUserDeleteR uid = do
     case sure of
         1 -> do
             runDB $ delete uid
+            setMessage "User deleted."
             redirect UserListR
         _ -> redirect $ UserR uid
 

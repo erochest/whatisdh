@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Handler.Document
     ( getDocListR
@@ -110,7 +111,14 @@ getDocDeleteR docId = do
     defaultLayout $(widgetFile "docdelete")
 
 postDocDeleteR :: DocumentId -> Handler RepHtml
-postDocDeleteR docId = undefined
+postDocDeleteR docId = do
+    sure :: Int <- runInputPost $ ireq intField "sure"
+    case sure of
+        1 -> do
+            runDB $ delete docId
+            setMessage "Document deleted."
+            redirect DocListR
+        _ -> redirect $ DocR docId
 
 -- Forms
 
