@@ -8,7 +8,12 @@
 
   $maybe user <- uploadingUser
     <dt>Uploaded by
-    <dd>#{userIdent user}
+    <dd>
+      $if admin
+        <a href=@{UserR (documentUploadedBy doc)}>
+          #{userIdent user}
+      $else
+        #{userIdent user}
 
   <dt>Uploaded on
   <dd>#{formatRFC1123 $ documentUploadedOn doc}
@@ -17,11 +22,9 @@
   <dd>
     <pre>#{documentContent doc}
 
-$case admin
-  $of Authorized
-    <a .btn .btn-primary href=@{DocEditR docId}>Edit
-    $maybe uid <- currentUserId
-      $if ((==) uid (documentUploadedBy doc))
-        &nbsp;
-        <a .btn .btn-primary href=@{DocDeleteR docId}>Delete
-  $of _
+$if admin
+  <a .btn .btn-primary href=@{DocEditR docId}>Edit
+  $maybe uid <- currentUserId
+    $if ((==) uid (documentUploadedBy doc))
+      &nbsp;
+      <a .btn .btn-primary href=@{DocDeleteR docId}>Delete

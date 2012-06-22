@@ -72,7 +72,7 @@ getDocR docId = do
     currentUserId <- maybeAuthId
     doc           <- runDB $ get404 docId
     uploadingUser <- runDB . get $ documentUploadedBy doc
-    admin         <- isAdmin
+    admin         <- (== Authorized) <$> isAdmin
     defaultLayout $ do
         setTitle . (mappend "What is DH? ") . toHtml $ documentTitle doc
         $(widgetFile "doc")
