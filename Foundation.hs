@@ -82,12 +82,14 @@ instance Yesod App where
         key <- getKey "config/client_session_key.aes"
         return . Just $ clientSessionBackend key 120
 
-    isAuthorized UserListR     _    = isSuper
-    isAuthorized (UserR _)     _    = isSuper
-    isAuthorized (UserEditR _) _    = isSuper
-    isAuthorized (DocEditR _)  _    = isAdmin
-    isAuthorized _             True = isAdmin
-    isAuthorized _             _    = return Authorized
+    isAuthorized UserListR       _    = isSuper
+    isAuthorized (UserR _)       _    = isSuper
+    isAuthorized (UserEditR _)   _    = isSuper
+    isAuthorized (UserDeleteR _) _    = isSuper
+    isAuthorized (DocEditR _)    _    = isAdmin
+    isAuthorized (DocDeleteR _)  _    = isAdmin
+    isAuthorized _               True = isAdmin
+    isAuthorized _               _    = return Authorized
 
     defaultLayout widget = do
         master <- getYesod

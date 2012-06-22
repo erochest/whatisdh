@@ -1,0 +1,8 @@
+<form method="post" action=@{DocDeleteR docId}>
+  <p>
+    Are you sure you want to delete #
+    <i>#{documentTitle doc}?
+  <button .btn .btn-danger type="submit" name="sure" value="1">Yes
+  &nbsp;
+  <button .btn .btn-primary type="submit" name="sure" value="0">No
+

@@ -105,7 +105,9 @@ getDocEditR docId = do
 -- DocDeleteR
 
 getDocDeleteR :: DocumentId -> Handler RepHtml
-getDocDeleteR docId = undefined
+getDocDeleteR docId = do
+    doc <- runDB $ get404 docId
+    defaultLayout $(widgetFile "docdelete")
 
 postDocDeleteR :: DocumentId -> Handler RepHtml
 postDocDeleteR docId = undefined
