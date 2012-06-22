@@ -72,7 +72,13 @@ postDocNewR = do
 -- DocR
 
 getDocR :: DocumentId -> Handler RepHtml
-getDocR docId = undefined
+getDocR docId = do
+    currentUserId <- maybeAuthId
+    doc           <- runDB $ get404 docId
+    uploadingUser <- runDB . get $ documentUploadedBy doc
+    defaultLayout $ do
+        setTitle . (mappend "What is DH? ") . toHtml $ documentTitle doc
+        $(widgetFile "doc")
 
 postDocR :: DocumentId -> Handler RepHtml
 postDocR docId = undefined
