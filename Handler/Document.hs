@@ -13,12 +13,8 @@ module Handler.Document
     , docForm
     ) where
 
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as BSL
 import           Data.Maybe
 import           Data.Monoid
-import qualified Data.Text as T
-import           Data.Text.Encoding (decodeUtf8)
 import           Data.Time
 import           Import
 import           Text.Blaze (Markup)
@@ -122,13 +118,6 @@ postDocDeleteR docId = do
 
 -- Forms
 
-data DocumentInfo = DocumentInfo
-    { diTitle   :: T.Text
-    , diSource  :: Maybe T.Text
-    , diContent :: Maybe Textarea
-    , diFile    :: Maybe FileInfo
-    }
-
 docAForm :: (Yesod m, RenderMessage m FormMessage)
          => Maybe Document -> AForm s m DocumentInfo
 docAForm mdoc =   DocumentInfo
@@ -145,20 +134,4 @@ docForm :: (Yesod m, RenderMessage m FormMessage)
         -> Markup
         -> MForm s m (FormResult DocumentInfo, GWidget s m ())
 docForm = renderBootstrap . docAForm
-
-toStrict :: BSL.ByteString -> BS.ByteString
-toStrict = BS.concat . BSL.toChunks
-
-getContent :: DocumentInfo -> (T.Text, T.Text)
-getContent dinfo = (content, hash)
-    where content = maybe "" id . listToMaybe $ catMaybes
-                [ unTextarea <$> diContent dinfo
-                , (decodeUtf8 . toStrict . fileContent) <$> diFile dinfo
-                ]
-          hash = makeHash content
-
-getSource :: DocumentInfo -> Maybe T.Text
-getSource dinfo = listToMaybe $ catMaybes [ diSource dinfo
-                                          , fileName <$> diFile dinfo
-                                          ]
 
