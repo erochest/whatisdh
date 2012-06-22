@@ -14,11 +14,10 @@ module Handler.Document
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import           Data.Digest.Pure.SHA (sha1, showDigest)
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Text as T
-import           Data.Text.Encoding (decodeUtf8, encodeUtf8)
+import           Data.Text.Encoding (decodeUtf8)
 import           Data.Time
 import           Import
 import           Text.Blaze (Markup)
@@ -51,11 +50,7 @@ postDocNewR = do
         FormSuccess docInfo -> do
             userId <- requireAuthId
             now    <- liftIO getCurrentTime
-            let content = maybe "" id . listToMaybe $ catMaybes
-                    [ unTextarea <$> diContent docInfo
-                    , (decodeUtf8 . toStrict . fileContent) <$> diFile docInfo
-                    ]
-                hash = T.pack . showDigest . sha1 $ BSL.fromChunks [encodeUtf8 content]
+            let (content, hash) = getContent docInfo
                 doc = Document (diTitle docInfo)
                                (diSource docInfo)
                                userId
@@ -82,7 +77,21 @@ getDocR docId = do
         $(widgetFile "doc")
 
 postDocR :: DocumentId -> Handler RepHtml
-postDocR docId = undefined
+postDocR docId = do
+    mdoc <- Just <$> (runDB $ get404 docId)
+    ((result, form), enctype) <- runFormPost $ docForm mdoc
+    case result of
+        FormSuccess updated -> do
+            let (content, hash) = getContent updated
+            runDB $ update docId [ DocumentTitle   =. diTitle updated
+                                 , DocumentSource  =. diSource updated
+                                 , DocumentHash    =. hash
+                                 , DocumentContent =. content
+                                 ]
+            redirect $ DocR docId
+        _ -> do
+            let action = DocR docId
+            defaultLayout $(widgetFile "docedit")
 
 -- DocEditR
 
@@ -129,4 +138,12 @@ docForm = renderBootstrap . docAForm
 
 toStrict :: BSL.ByteString -> BS.ByteString
 toStrict = BS.concat . BSL.toChunks
+
+getContent :: DocumentInfo -> (T.Text, T.Text)
+getContent dinfo = (content, hash)
+    where content = maybe "" id . listToMaybe $ catMaybes
+                [ unTextarea <$> diContent dinfo
+                , (decodeUtf8 . toStrict . fileContent) <$> diFile dinfo
+                ]
+          hash = makeHash content
 

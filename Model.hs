@@ -1,12 +1,16 @@
 {-# LANGUAGE RankNTypes #-}
 module Model where
 
-import Prelude
-import Yesod
-import Yesod.Auth
-import Data.Text (Text)
-import Data.Time
-import Database.Persist.Quasi
+import qualified Data.ByteString.Lazy as BSL
+import           Data.Digest.Pure.SHA (sha1, showDigest)
+import           Prelude
+import           Yesod
+import           Yesod.Auth
+import           Data.Text (Text)
+import qualified Data.Text as T
+import           Data.Text.Encoding (encodeUtf8)
+import           Data.Time
+import           Database.Persist.Quasi
 
 data TokenCategory
     = AlphaToken
@@ -52,4 +56,7 @@ isAdmin = do
         Nothing -> AuthenticationRequired
         Just (Entity _ (User _ _ True)) -> Authorized
         Just _ -> Unauthorized "You have to be an admin."
+
+makeHash :: T.Text -> T.Text
+makeHash = T.pack . showDigest . sha1 . BSL.fromChunks . (:[]) . encodeUtf8
 
