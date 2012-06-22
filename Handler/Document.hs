@@ -76,6 +76,7 @@ getDocR docId = do
     currentUserId <- maybeAuthId
     doc           <- runDB $ get404 docId
     uploadingUser <- runDB . get $ documentUploadedBy doc
+    admin         <- isAdmin
     defaultLayout $ do
         setTitle . (mappend "What is DH? ") . toHtml $ documentTitle doc
         $(widgetFile "doc")
@@ -86,7 +87,11 @@ postDocR docId = undefined
 -- DocEditR
 
 getDocEditR :: DocumentId -> Handler RepHtml
-getDocEditR docId = undefined
+getDocEditR docId = do
+    mdoc <- Just <$> (runDB $ get404 docId)
+    let action = DocR docId
+    ((result, form), enctype) <- runFormPost $ docForm mdoc
+    defaultLayout $(widgetFile "docedit")
 
 -- DocDeleteR
 
