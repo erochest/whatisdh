@@ -1,7 +1,10 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE RankNTypes #-}
 module Model where
 
 import           Control.Applicative ((<$>))
+import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BSL
 import           Data.Digest.Pure.SHA (sha1, showDigest)
 import           Data.Maybe
@@ -86,4 +89,15 @@ getSource :: DocumentInfo -> Maybe T.Text
 getSource dinfo = listToMaybe $ catMaybes [ diSource dinfo
                                           , fileName <$> diFile dinfo
                                           ]
+
+instance A.ToJSON a => A.ToJSON (Entity a) where
+    toJSON (Entity i e) = A.object [ "id"     .= i
+                                   , "entity" .= e
+                                   ]
+
+instance A.ToJSON User where
+    toJSON (User i s a) = A.object [ "ident" .= i
+                                   , "super" .= s
+                                   , "admin" .= a
+                                   ]
 

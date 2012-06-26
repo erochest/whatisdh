@@ -33,6 +33,7 @@ library
                      Handler.Home
                      Handler.Index
                      Handler.User
+                     Handler.Debug
                      Utils
 
     if flag(dev) || flag(library-only)

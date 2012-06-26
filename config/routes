@@ -26,3 +26,6 @@
 /index         IndexR   GET
 /index/reindex ReindexR GET POST
 
+-- Some debugging routes.
+/debug/users DebugUsersR GET
+
