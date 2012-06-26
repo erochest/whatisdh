@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Foundation
     ( App (..)
     , Route (..)
@@ -31,6 +32,8 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
+import Text.Printf
+import qualified Data.Text as T
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -157,6 +160,10 @@ instance YesodAuth App where
 
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
+        liftIO . printf "authorizing. plugin = %s\n" . T.unpack $ credsPlugin creds
+        liftIO . printf "authorizing. ident  = %s\n" . T.unpack $ credsIdent  creds
+        liftIO . printf "authorizing. extra  = %s\n" . show     $ credsExtra  creds
+        liftIO . printf "authorizing. user   = %s\n" $ show x
         case x of
             Just (Entity uid _) -> return $ Just uid
             Nothing             -> return Nothing

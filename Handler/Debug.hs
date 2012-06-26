@@ -6,5 +6,5 @@ module Handler.Debug
 import Import
 
 getDebugUsersR :: Handler RepJson
-getDebugUsersR = (runDB $ selectList [] [Asc UserIdent]) >>= jsonToRepJson 
+getDebugUsersR = (runDB $ selectList [] [Asc UserIdent]) >>= jsonToRepJson
 
