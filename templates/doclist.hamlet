@@ -12,5 +12,6 @@ $else
           <i>#{src} #
         on #
         <i>#{toHtml $ formatRFC1123 (documentUploadedOn (entityVal doc))}
-<div .form-actions>
-  <a .btn .primary href=@{DocNewR}>New Document
+$if canAdd
+  <div .form-actions>
+    <a .btn .primary href=@{DocNewR}>New Document

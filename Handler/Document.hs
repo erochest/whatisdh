@@ -24,7 +24,8 @@ import           Yesod.Auth
 
 getDocListR :: Handler RepHtml
 getDocListR = do
-    docs <- runDB $ selectList [] [Asc DocumentTitle]
+    docs   <- runDB $ selectList [] [Asc DocumentTitle]
+    canAdd <- visible DocNewR True
     defaultLayout $ do
         setTitle "What is DH? Documents"
         $(widgetFile "doclist")
