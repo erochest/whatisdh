@@ -84,6 +84,7 @@ instance Yesod App where
         return . Just $ clientSessionBackend key 120
 
     isAuthorized UserListR       _    = isSuper
+    isAuthorized UserNewR        True = return Authorized
     isAuthorized (UserR _)       _    = isSuper
     isAuthorized (UserEditR _)   _    = isSuper
     isAuthorized (UserDeleteR _) _    = isSuper
