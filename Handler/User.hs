@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Handler.User
@@ -17,6 +18,8 @@ import           Data.Monoid
 import           Import
 import           Text.Blaze (Markup)
 import           Yesod.Auth
+import qualified Data.Text as T
+import           Text.Printf
 
 isSameUser :: UserId -> Entity User -> Bool
 isSameUser uid (Entity eid _) = uid == eid
@@ -71,8 +74,10 @@ postUserNewR :: Handler RepHtml
 postUserNewR = do
     ((result, form), enctype) <- runFormPost newUserForm
     case result of
-        FormSuccess user ->
-            (runDB $ insert user) >> redirect (AuthR LoginR)
+        FormSuccess user -> do
+            uid <- runDB $ insert user
+            -- $(logInfo) (T.pack . printf "Created user ID %s" $ show uid)
+            redirect (AuthR LoginR)
         FormFailure msgs -> do
             setMessage $ listToUl msgs
             redirect UserNewR
