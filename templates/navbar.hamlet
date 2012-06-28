@@ -13,9 +13,10 @@
           <li>
             <a href=@{DocListR}>Documents
         $maybe user <- muser
-          $if userSuper (entityVal user)
+          $if userAdmin (entityVal user)
             <li>
               <a href=@{IndexR}>Index
+          $if userSuper (entityVal user)
             <li>
               <a href=@{UserListR}>Users
           <li>
