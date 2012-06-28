@@ -19,6 +19,12 @@ TokenType
     tokenCategory TokenCategory
     UniqueTokenType text
 
+TokenIndex
+    tokenId TokenTypeId
+    documentId DocumentId
+    freq Int default=0
+    UniqueIndex tokenId documentId
+
 Bigram
     fstToken TokenTypeId
     sndToken TokenTypeId
