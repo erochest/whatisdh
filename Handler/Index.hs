@@ -8,7 +8,10 @@ module Handler.Index
 import           Import
 
 getIndexR :: Handler RepHtml
-getIndexR = undefined
+getIndexR = do
+    defaultLayout $ do
+        setTitle "What is DH? Token Index"
+        $(widgetFile "index")
 
 getReindexR :: Handler RepHtml
 getReindexR = undefined
