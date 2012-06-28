@@ -21,7 +21,7 @@
           <li>
             <a href=@{AuthR LogoutR}>Logout
           <li>
-            <a href='#'>
+            <a href=@{UserR (entityKey user)}>
               #{userIdent (entityVal user)}
         $nothing
           <li>
