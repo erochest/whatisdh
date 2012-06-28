@@ -38,7 +38,7 @@ getUserListR = do
 
 getUserR :: UserId -> Handler RepHtml
 getUserR uid = do
-    currentUserId <- requireAuthId
+    (Entity currentUserId currentUser) <- requireAuth
     user <- runDB $ get404 uid
     defaultLayout $ do
         setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user

@@ -2,22 +2,24 @@
   <dt>Identifier
   <dd>#{userIdent user}
 
-  <dt>Superuser
-  <dd>
-    $if userSuper user
-      <i .icon-plane>
-    $else
-      <i .icon-remove>
+  $if userSuper currentUser
+    <dt>Superuser
+    <dd>
+      $if userSuper user
+        <i .icon-plane>
+      $else
+        <i .icon-remove>
 
-  <dt>Administrator
-  <dd>
-    $if userAdmin user
-      <i .icon-cog>
-    $else
-      <i .icon-remove>
-<a .btn.btn-primary href=@{UserEditR uid}>
-  Edit
-$if ((/=) currentUserId uid)
-  &nbsp;
-  <a .btn .btn-danger href=@{UserDeleteR uid}>
-    Delete
+    <dt>Administrator
+    <dd>
+      $if userAdmin user
+        <i .icon-cog>
+      $else
+        <i .icon-remove>
+$if userSuper currentUser
+  <a .btn.btn-primary href=@{UserEditR uid}>
+    Edit
+  $if ((/=) currentUserId uid)
+    &nbsp;
+    <a .btn .btn-danger href=@{UserDeleteR uid}>
+      Delete
