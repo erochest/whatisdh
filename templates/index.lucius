@@ -1,0 +1,5 @@
+
+.button-bar {
+    float: right;
+}
+
