@@ -1,1 +1,6 @@
+<div .button-bar>
+  <a href=@{ReindexR} .btn .btn-warning>Reindex
+
 <h2>Token Index
+
+<div #token-index>
