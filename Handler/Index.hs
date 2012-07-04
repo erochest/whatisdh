@@ -8,6 +8,8 @@ module Handler.Index
 
 
 import           Control.Applicative
+import           Data.Aeson
+import qualified Data.Aeson.Types as AT
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
 import           Data.Maybe (catMaybes)
@@ -16,6 +18,7 @@ import qualified Data.Text as T
 import           Database.Persist
 import           Database.Persist.GenericSql
 import           Database.Persist.GenericSql.Raw
+import           Database.Persist.Store
 import           Import
 import           Text.Coffee
 
@@ -29,19 +32,36 @@ getIndexR = do
                    JOIN token_type t2 ON b.snd_token=t2.id \
                    JOIN token_type t3 ON tc.next=t3.id \
                    "
+        showpack = T.pack . show
+
+        totuple :: [PersistValue] -> Maybe (Int, Int, T.Text, T.Text, T.Text)
+        totuple [PersistInt64 tcId, PersistInt64 bId, PersistText t1, PersistText t2, PersistText t3] =
+            Just (fromIntegral tcId, fromIntegral bId, t1, t2, t3)
+        totuple _ = Nothing
+
+        tojson :: (Int, Int, T.Text, T.Text, T.Text) -> Value
+        tojson (tcId, bId, t1, t2, t3) = AT.object [ "chain_id"  .= tcId
+                                                   , "bigram_id" .= bId
+                                                   , "tokens"    .= array [t1, t2, t3]
+                                                   ]
+
     pagination <- runInputGet paginationForm
-    results <- case pagination of
+    results    <- case pagination of
         (Pagination moffset mlimit morderby msort) -> do
             let sql = T.concat $ [select] ++ catMaybes
-                        [ (mappend " ORDER BY ")               <$> morderby
-                        , (mappend " ")                        <$> msort
-                        , (mappend " LIMIT " . T.pack . show)  <$> mlimit
-                        , (mappend " OFFSET " . T.pack . show) <$> moffset
+                        [ (mappend " ORDER BY ")          <$> morderby
+                        , (mappend " ")                   <$> msort
+                        , (mappend " LIMIT " . showpack)  <$> mlimit
+                        , (mappend " OFFSET " . showpack) <$> moffset
                         , Just ";"
                         ]
             $(logDebug) ("SQL: " `mappend` sql)
-            results <- runDB . C.runResourceT $ withStmt sql [] C.$$ CL.consume
-            undefined
+            results <- runDB . C.runResourceT $     withStmt sql []
+                                              C.$= CL.map totuple
+                                              C.$= CL.map (fmap tojson)
+                                              C.$$ CL.consume
+            $(logDebug) ("RESULTS COUNT: " `mappend` showpack (length results))
+            return results
         _ -> return []
 
     let html = do
@@ -55,7 +75,7 @@ getIndexR = do
             toWidget $(coffeeFile "templates/index.coffee")
             $(widgetFile "index")
 
-        json = ()
+        json = array $ catMaybes results
 
     defaultLayoutJson html json
 
