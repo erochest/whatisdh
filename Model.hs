@@ -24,6 +24,8 @@ data TokenCategory
     | PunctuationToken
     | SymbolToken
     | MarkToken
+    | WhiteSpaceToken
+    | UnknownToken
     deriving (Show, Read, Eq)
 derivePersistField "TokenCategory"
 

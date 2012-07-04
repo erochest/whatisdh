@@ -34,6 +34,7 @@ library
                      Handler.Index
                      Handler.User
                      Handler.Debug
+                     Text.Tokenizer
                      Utils
 
     if flag(dev) || flag(library-only)
@@ -90,6 +91,7 @@ library
                  , aeson                         >= 0.6        && < 0.8
                  , unordered-containers          >= 0.2        && < 0.4
                  , conduit                       >= 0.4        && < 0.6
+                 , attoparsec                    >= 0.10       && < 0.12
 
 executable         whatisdh
     if flag(library-only)
