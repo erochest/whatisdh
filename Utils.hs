@@ -4,10 +4,12 @@ module Utils
     ( listToUl
     , toStrict
     , visible
+    , Pagination(..)
+    , paginationForm
     ) where
 
 
-import           Control.Applicative ((<$>))
+import           Control.Applicative ((<$>), (<*>))
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.List as L
@@ -16,6 +18,7 @@ import qualified Data.Text as T
 import           Text.Blaze.Html5
 import           Prelude
 import           Yesod.Core
+import           Yesod.Form
 
 
 listToUl :: [T.Text] -> Html
@@ -31,5 +34,18 @@ visible route write = visible' <$> isAuthorized route write
     where
         visible' Authorized = True
         visible' _          = False
-    
+
+data Pagination = Pagination
+    { paginationOffset  :: Maybe Int
+    , paginationLimit   :: Maybe Int
+    , paginationOrderBy :: Maybe T.Text
+    , paginationSort    :: Maybe T.Text
+    }
+
+paginationForm :: (RenderMessage m FormMessage) => FormInput s m Pagination
+paginationForm =   Pagination
+               <$> iopt intField  "offset"
+               <*> iopt intField  "limit"
+               <*> iopt textField "orderby"
+               <*> iopt textField "sort"
 
