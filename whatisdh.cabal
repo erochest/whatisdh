@@ -34,6 +34,7 @@ library
                      Handler.Index
                      Handler.User
                      Handler.Debug
+                     Database.Index
                      Text.Tokenizer
                      Utils
 
@@ -92,6 +93,7 @@ library
                  , unordered-containers          >= 0.2        && < 0.4
                  , conduit                       >= 0.4        && < 0.6
                  , attoparsec                    >= 0.10       && < 0.12
+                 , transformers                  >= 0.3        && < 0.5
 
 executable         whatisdh
     if flag(library-only)
