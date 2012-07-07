@@ -14,6 +14,7 @@
 /user/#UserId         UserR         GET POST
 /user/#UserId/edit    UserEditR     GET
 /user/#UserId/delete  UserDeleteR   GET POST
+/user/#UserId/rekey   UserRekeyR    POST
 
 -- Document routes
 /document                    DocListR   GET

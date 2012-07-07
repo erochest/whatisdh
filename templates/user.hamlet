@@ -18,7 +18,10 @@
         <i .icon-remove>
   $if (==) currentUserId uid
     <dt>API Key
-    <dd>#{userApiKey user}
+    <dd>
+      <button #rekey .btn .btn-warning .btn-mini>New Key
+      &nbsp;
+      <span #key>#{userApiKey user}
 $if userSuper currentUser
   <a .btn.btn-primary href=@{UserEditR uid}>
     Edit

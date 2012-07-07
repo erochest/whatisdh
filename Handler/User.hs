@@ -10,6 +10,7 @@ module Handler.User
     , getUserEditR
     , getUserDeleteR
     , postUserDeleteR
+    , postUserRekeyR
     , userAForm
     , userForm
     ) where
@@ -21,6 +22,7 @@ import           Yesod.Auth
 import qualified Data.Text as T
 import           Data.UUID hiding (null)
 import           Data.UUID.V4
+import           Text.Coffee
 import           Text.Printf
 
 isSameUser :: UserId -> Entity User -> Bool
@@ -44,6 +46,8 @@ getUserR uid = do
     user <- runDB $ get404 uid
     defaultLayout $ do
         setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user
+        addScript $ StaticR js_jquery_1_7_2_min_js
+        toWidget $(coffeeFile "templates/user.coffee")
         $(widgetFile "user")
 
 postUserR :: UserId -> Handler RepHtml
@@ -62,6 +66,17 @@ postUserR uid = do
         _ -> do
             let action = UserR uid
             defaultLayout $(widgetFile "useredit")
+
+-- UserRekeyR
+
+postUserRekeyR :: UserId -> Handler RepJson
+postUserRekeyR uid = do
+    uuid <- liftIO nextRandom
+    let key = T.pack $ toString uuid
+    runDB $ update uid [ UserApiKey =. key ]
+    jsonToRepJson $ object [ "id"  .= uid
+                           , "key" .= key
+                           ]
 
 -- UserNewR
 

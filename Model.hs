@@ -67,6 +67,21 @@ isAdmin = do
         Just (Entity _ (User _ _ True _)) -> Authorized
         Just _ -> Unauthorized "You have to be an admin."
 
+selfOrSuper :: forall m s
+             . ( YesodAuth m
+               , PersistStore (YesodPersistBackend m) (GHandler s m)
+               , YesodPersist m
+               , AuthId m ~ Key (YesodPersistBackend m) (UserGeneric (YesodPersistBackend m))
+               )
+            => AuthId m
+            -> GHandler s m AuthResult
+selfOrSuper uid = do
+    mAuthId <- maybeAuthId
+    case mAuthId of
+        Nothing -> isSuper
+        Just currentUserId | currentUserId == uid -> return Authorized
+                           | otherwise            -> isSuper
+
 -- Document-related
 
 data DocumentInfo = DocumentInfo
