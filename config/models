@@ -2,7 +2,9 @@ User
     ident Text
     super Bool default=False
     admin Bool default=False
+    apiKey Text
     UniqueUser ident
+    UniqueApiKey apiKey
     deriving Show Eq
 
 Document

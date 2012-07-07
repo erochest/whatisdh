@@ -19,6 +19,8 @@ import           Import
 import           Text.Blaze (Markup)
 import           Yesod.Auth
 import qualified Data.Text as T
+import           Data.UUID hiding (null)
+import           Data.UUID.V4
 import           Text.Printf
 
 isSameUser :: UserId -> Entity User -> Bool
@@ -75,7 +77,8 @@ postUserNewR = do
     ((result, form), enctype) <- runFormPost newUserForm
     case result of
         FormSuccess user -> do
-            uid <- runDB $ insert user
+            uuid <- liftIO nextRandom
+            uid  <- runDB . insert $ user { userApiKey = T.pack $ toString uuid }
             -- $(logInfo) (T.pack . printf "Created user ID %s" $ show uid)
             redirect (AuthR LoginR)
         FormFailure msgs -> do
@@ -116,7 +119,7 @@ postUserDeleteR uid = do
 
 newUserAForm :: (Yesod m, RenderMessage m FormMessage)
              => AForm s m User
-newUserAForm =   (\ident -> User ident False False)
+newUserAForm =   (\ident -> User ident False False "")
              <$> areq textField "E-Mail" Nothing
 
 newUserForm :: (Yesod m, RenderMessage m FormMessage)
@@ -125,7 +128,7 @@ newUserForm = renderBootstrap newUserAForm
 
 userAForm :: (Yesod m, RenderMessage m FormMessage)
           => Maybe User -> AForm s m User
-userAForm muser =   User
+userAForm muser =   (\i s a -> User i s a "")
                 <$> areq textField "E-Mail" (userIdent <$> muser)
                 <*> areq boolField sufs     (userSuper <$> muser)
                 <*> areq boolField adfs     (userAdmin <$> muser)

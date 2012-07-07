@@ -49,9 +49,9 @@ isSuper :: forall m s
 isSuper = do
     muser <- maybeAuth
     return $ case muser of
-        Nothing                         -> AuthenticationRequired
-        Just (Entity _ (User _ True _)) -> Authorized
-        Just _                          -> Unauthorized "You have to be super."
+        Nothing                           -> AuthenticationRequired
+        Just (Entity _ (User _ True _ _)) -> Authorized
+        Just _                            -> Unauthorized "You have to be super."
 
 isAdmin :: forall m s
          . ( YesodAuth m
@@ -64,7 +64,7 @@ isAdmin = do
     muser <- maybeAuth
     return $ case muser of
         Nothing -> AuthenticationRequired
-        Just (Entity _ (User _ _ True)) -> Authorized
+        Just (Entity _ (User _ _ True _)) -> Authorized
         Just _ -> Unauthorized "You have to be an admin."
 
 -- Document-related
@@ -98,8 +98,9 @@ instance A.ToJSON a => A.ToJSON (Entity a) where
                                    ]
 
 instance A.ToJSON User where
-    toJSON (User i s a) = A.object [ "ident" .= i
-                                   , "super" .= s
-                                   , "admin" .= a
-                                   ]
+    toJSON (User i s a k) = A.object [ "ident"  .= i
+                                     , "super"  .= s
+                                     , "admin"  .= a
+                                     , "apikey" .= k
+                                     ]
 

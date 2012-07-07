@@ -16,6 +16,9 @@
         <i .icon-cog>
       $else
         <i .icon-remove>
+  $if (==) currentUserId uid
+    <dt>API Key
+    <dd>#{userApiKey user}
 $if userSuper currentUser
   <a .btn.btn-primary href=@{UserEditR uid}>
     Edit
