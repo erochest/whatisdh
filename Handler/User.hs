@@ -23,7 +23,6 @@ import qualified Data.Text as T
 import           Data.UUID hiding (null)
 import           Data.UUID.V4
 import           Text.Coffee
-import           Text.Printf
 
 isSameUser :: UserId -> Entity User -> Bool
 isSameUser uid (Entity eid _) = uid == eid
@@ -93,8 +92,7 @@ postUserNewR = do
     case result of
         FormSuccess user -> do
             uuid <- liftIO nextRandom
-            uid  <- runDB . insert $ user { userApiKey = T.pack $ toString uuid }
-            -- $(logInfo) (T.pack . printf "Created user ID %s" $ show uid)
+            _    <- runDB . insert $ user { userApiKey = T.pack $ toString uuid }
             redirect (AuthR LoginR)
         FormFailure msgs -> do
             setMessage $ listToUl msgs

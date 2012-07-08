@@ -15,8 +15,6 @@ import qualified Data.Conduit.List as CL
 import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
-import           Database.Persist
-import           Database.Persist.GenericSql
 import           Database.Persist.GenericSql.Raw
 import           Database.Persist.Store
 import           Import
@@ -45,24 +43,20 @@ getIndexR = do
                                                    , "tokens"    .= array [t1, t2, t3]
                                                    ]
 
-    pagination <- runInputGet paginationForm
-    results    <- case pagination of
-        (Pagination moffset mlimit morderby msort) -> do
-            let sql = T.concat $ [select] ++ catMaybes
-                        [ (mappend " ORDER BY ")          <$> morderby
-                        , (mappend " ")                   <$> msort
-                        , (mappend " LIMIT " . showpack)  <$> mlimit
-                        , (mappend " OFFSET " . showpack) <$> moffset
-                        , Just ";"
-                        ]
-            $(logDebug) ("SQL: " `mappend` sql)
-            results <- runDB . C.runResourceT $     withStmt sql []
-                                              C.$= CL.map totuple
-                                              C.$= CL.map (fmap tojson)
-                                              C.$$ CL.consume
-            $(logDebug) ("RESULTS COUNT: " `mappend` showpack (length results))
-            return results
-        _ -> return []
+    Pagination moffset mlimit morderby msort <- runInputGet paginationForm
+    let sql = T.concat $ [select] ++ catMaybes
+                [ (mappend " ORDER BY ")          <$> morderby
+                , (mappend " ")                   <$> msort
+                , (mappend " LIMIT " . showpack)  <$> mlimit
+                , (mappend " OFFSET " . showpack) <$> moffset
+                , Just ";"
+                ]
+    $(logDebug) ("SQL: " `mappend` sql)
+    results <- runDB . C.runResourceT $     withStmt sql []
+                                      C.$= CL.map totuple
+                                      C.$= CL.map (fmap tojson)
+                                      C.$$ CL.consume
+    $(logDebug) ("RESULTS COUNT: " `mappend` showpack (length results))
 
     let html = do
             setTitle "What is DH? Token Index"
@@ -75,9 +69,9 @@ getIndexR = do
             toWidget $(coffeeFile "templates/index.coffee")
             $(widgetFile "index")
 
-        json = array $ catMaybes results
+        jsResults = array $ catMaybes results
 
-    defaultLayoutJson html json
+    defaultLayoutJson html jsResults
 
 getReindexR :: Handler RepHtml
 getReindexR = undefined

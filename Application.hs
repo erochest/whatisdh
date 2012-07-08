@@ -30,7 +30,6 @@ import Handler.Document
 import Handler.Home
 import Handler.Index
 import Handler.User
-import Handler.Debug
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see

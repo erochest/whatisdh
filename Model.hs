@@ -16,7 +16,6 @@ import           Database.Persist.Quasi
 import           Utils
 import           Prelude
 import           Yesod
-import           Yesod.Auth
 
 data TokenCategory
     = AlphaToken
@@ -36,51 +35,6 @@ derivePersistField "TokenCategory"
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
     $(persistFileWith lowerCaseSettings "config/models")
-
--- User-related
-
-isSuper :: forall m s
-         . ( YesodAuth m
-           , PersistStore (YesodPersistBackend m) (GHandler s m)
-           , YesodPersist m
-           , AuthId m ~ Key (YesodPersistBackend m) (UserGeneric (YesodPersistBackend m))
-           )
-        => GHandler s m AuthResult
-isSuper = do
-    muser <- maybeAuth
-    return $ case muser of
-        Nothing                           -> AuthenticationRequired
-        Just (Entity _ (User _ True _ _)) -> Authorized
-        Just _                            -> Unauthorized "You have to be super."
-
-isAdmin :: forall m s
-         . ( YesodAuth m
-           , PersistStore (YesodPersistBackend m) (GHandler s m)
-           , YesodPersist m
-           , AuthId m ~ Key (YesodPersistBackend m) (UserGeneric (YesodPersistBackend m))
-           )
-        => GHandler s m AuthResult
-isAdmin = do
-    muser <- maybeAuth
-    return $ case muser of
-        Nothing -> AuthenticationRequired
-        Just (Entity _ (User _ _ True _)) -> Authorized
-        Just _ -> Unauthorized "You have to be an admin."
-
-selfOrSuper :: forall m s
-             . ( YesodAuth m
-               , PersistStore (YesodPersistBackend m) (GHandler s m)
-               , YesodPersist m
-               , AuthId m ~ Key (YesodPersistBackend m) (UserGeneric (YesodPersistBackend m))
-               )
-            => AuthId m
-            -> GHandler s m AuthResult
-selfOrSuper uid = do
-    mAuthId <- maybeAuthId
-    case mAuthId of
-        Nothing -> isSuper
-        Just currentUserId | currentUserId == uid -> return Authorized
-                           | otherwise            -> isSuper
 
 -- Document-related
 
@@ -118,4 +72,5 @@ instance A.ToJSON User where
                                      , "admin"  .= a
                                      , "apikey" .= k
                                      ]
+
 

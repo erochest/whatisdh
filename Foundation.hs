@@ -32,6 +32,7 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
+import Utils.Auth
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -85,13 +86,14 @@ instance Yesod App where
 
     isAuthorized UserListR        _     = isSuper
     isAuthorized UserNewR         True  = return Authorized
-    isAuthorized (UserR uid)      False = selfOrSuper uid
+    isAuthorized (UserR uid)      False = selfOrRole userSuper uid
     isAuthorized (UserR _)        _     = isSuper
-    isAuthorized (UserRekeyR uid) True  = selfOrSuper uid
+    isAuthorized (UserRekeyR uid) True  = selfOrRole userSuper uid
     isAuthorized (UserEditR _)    _     = isSuper
     isAuthorized (UserDeleteR _)  _     = isSuper
 
-    isAuthorized (DocEditR _)     _     = isAdmin
+    isAuthorized (DocEditR _)     False = isAdmin
+    isAuthorized (DocEditR _)     True  = keyAuthRole userAdmin
     isAuthorized (DocDeleteR _)   _     = isAdmin
 
     isAuthorized IndexR           _     = isAdmin

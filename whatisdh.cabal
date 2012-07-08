@@ -37,6 +37,7 @@ library
                      Database.Index
                      Text.Tokenizer
                      Utils
+                     Utils.Auth
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -95,6 +96,7 @@ library
                  , attoparsec                    >= 0.10       && < 0.12
                  , transformers                  >= 0.3        && < 0.5
                  , uuid                          >= 1.2        && < 1.4
+                 , yesod-persistent              >= 1.0        && < 1.2
 
 executable         whatisdh
     if flag(library-only)

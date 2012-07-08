@@ -19,6 +19,7 @@ import           Data.Time
 import           Import
 import           Text.Blaze (Markup)
 import           Yesod.Auth
+import           Utils.Auth
 
 -- DocListR
 
