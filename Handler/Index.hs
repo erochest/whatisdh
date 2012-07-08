@@ -20,7 +20,6 @@ import           Database.Persist.Store
 import           Import
 import           Text.Coffee
 
-
 getIndexR :: Handler RepHtmlJson
 getIndexR = do
     let select = " SELECT tc.id, b.id, t1.text, t2.text, t3.text \
@@ -76,6 +75,6 @@ getIndexR = do
 getReindexR :: Handler RepHtml
 getReindexR = undefined
 
-postReindexR :: Handler RepHtml
-postReindexR = undefined
+postReindexR :: Handler RepJson
+postReindexR = jsonToRepJson $ AT.object [ "message" .= ("hi" :: T.Text) ]
 

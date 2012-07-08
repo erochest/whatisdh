@@ -97,7 +97,8 @@ instance Yesod App where
     isAuthorized (DocDeleteR _)   _     = isAdmin
 
     isAuthorized IndexR           _     = isAdmin
-    isAuthorized ReindexR         _     = isSuper
+    isAuthorized ReindexR         False = isSuper
+    isAuthorized ReindexR         True  = keyAuthRole userSuper
 
     isAuthorized _                True  = isAdmin
     isAuthorized _                _     = return Authorized
