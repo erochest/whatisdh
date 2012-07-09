@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Handler.Index
@@ -8,14 +9,19 @@ module Handler.Index
 
 
 import           Control.Applicative
+import           Control.Concurrent
+import           Control.Exception hiding (Handler)
 import           Data.Aeson
 import qualified Data.Aeson.Types as AT
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
-import           Data.Maybe (catMaybes)
+import           Data.Maybe (catMaybes, maybe)
 import           Data.Monoid
 import qualified Data.Text as T
+import           Data.Time
+import           Database.Index (indexDocs)
 import           Database.Persist.GenericSql.Raw
+import           Database.Persist.Postgresql
 import           Database.Persist.Store
 import           Import
 import           Text.Coffee
@@ -80,8 +86,29 @@ getReindexR = defaultLayout $ do
     $(widgetFile "reindex")
 
 postReindexR :: Handler RepJson
-postReindexR = jsonToRepJson $ AT.object [ "document_count" .= (42 :: Int)
-                                         , "token_count"    .= (144 :: Int)
-                                         , "elapsed_time"   .= (3.1415 :: Double)
-                                         ]
+postReindexR = do
+    config <- persistConfig `fmap` getYesod
+    mvar   <- liftIO newEmptyMVar
+    liftIO . forkIO $ do
+        (index config >>= putMVar mvar . Just) `onException` (putMVar mvar Nothing)
+
+    output <- liftIO $ takeMVar mvar
+    jsonToRepJson $ maybe AT.Null outToJs output
+
+    where
+        outToJs (dCount, elapsed) =
+            AT.object [ "document_count" .= dCount
+                      , "token_count"    .= (144 :: Int)
+                      , "elapsed_time"   .= show elapsed
+                      ]
+
+        index :: PostgresConf -> IO (Int, NominalDiffTime)
+        index config = do
+            start  <- getCurrentTime
+            dCount <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
+                (docs :: [Entity Document]) <- selectList [] []
+                -- indexDocs docs
+                return (length docs)
+            end <- getCurrentTime
+            return (dCount, end `diffUTCTime` start)
 
