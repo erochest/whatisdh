@@ -96,19 +96,20 @@ postReindexR = do
     jsonToRepJson $ maybe AT.Null outToJs output
 
     where
-        outToJs (dCount, elapsed) =
+        outToJs (dCount, tCount, elapsed) =
             AT.object [ "document_count" .= dCount
-                      , "token_count"    .= (144 :: Int)
+                      , "token_count"    .= tCount
                       , "elapsed_time"   .= show elapsed
                       ]
 
-        index :: PostgresConf -> IO (Int, NominalDiffTime)
+        index :: PostgresConf -> IO (Int, Int, NominalDiffTime)
         index config = do
             start  <- getCurrentTime
-            dCount <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
+            (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
                 (docs :: [Entity Document]) <- selectList [] []
                 -- indexDocs docs
-                return (length docs)
+                tCount <- count ([] :: [Filter TokenType])
+                return (length docs, tCount)
             end <- getCurrentTime
-            return (dCount, end `diffUTCTime` start)
+            return (dCount, tCount, end `diffUTCTime` start)
 
