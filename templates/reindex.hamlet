@@ -1,0 +1,6 @@
+<h2>Reindex All Documents
+
+<div #spinner>
+  <img src=@{StaticR img_ajax_loader_gif} />
+
+<div #results>

@@ -73,8 +73,15 @@ getIndexR = do
     defaultLayoutJson html jsResults
 
 getReindexR :: Handler RepHtml
-getReindexR = undefined
+getReindexR = defaultLayout $ do
+    setTitle "What is DH? Re-index Documents"
+    addScript $ StaticR js_jquery_1_7_2_min_js
+    toWidget $(coffeeFile "templates/reindex.coffee")
+    $(widgetFile "reindex")
 
 postReindexR :: Handler RepJson
-postReindexR = jsonToRepJson $ AT.object [ "message" .= ("hi" :: T.Text) ]
+postReindexR = jsonToRepJson $ AT.object [ "document_count" .= (42 :: Int)
+                                         , "token_count"    .= (144 :: Int)
+                                         , "elapsed_time"   .= (3.1415 :: Double)
+                                         ]
 
