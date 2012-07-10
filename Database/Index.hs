@@ -1,8 +1,10 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Database.Index
     ( indexDocs
+    , deleteIndex
     ) where
 
 import           Control.Monad
@@ -179,10 +181,12 @@ indexDocs docs = do
 
 type IndexKey = (Int, T.Text)
 
--- * start transaction;
--- * create temporary table temporary_table as select * from test where false;
--- * copy temporary_table from 'data_file.csv';
--- lock table test;
--- update test set data=temporary_table.data from temporary_table where test.id=temporary_table.id;
--- insert into test select * from temporary_table where id not in (select id from test) as a
+-- deleteIndex :: MonadIO m => SqlPersist m ()
+deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). PersistQuery b m
+            => b m ()
+deleteIndex = do
+    deleteWhere ([] :: [Filter TokenChain])
+    deleteWhere ([] :: [Filter Bigram])
+    deleteWhere ([] :: [Filter TokenIndex])
+    deleteWhere ([] :: [Filter TokenType])
 

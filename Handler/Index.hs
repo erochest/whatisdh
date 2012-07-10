@@ -19,7 +19,7 @@ import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
 import           Data.Time
-import           Database.Index (indexDocs)
+import           Database.Index (indexDocs, deleteIndex)
 import           Database.Persist.GenericSql.Raw
 import           Database.Persist.Postgresql
 import           Database.Persist.Store
@@ -107,6 +107,7 @@ postReindexR = do
         index config = do
             start  <- getCurrentTime
             (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
+                deleteIndex
                 (docs :: [Entity Document]) <- selectList [] []
                 indexDocs docs
                 tCount <- count ([] :: [Filter TokenType])
