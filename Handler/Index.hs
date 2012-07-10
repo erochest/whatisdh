@@ -108,7 +108,7 @@ postReindexR = do
             start  <- getCurrentTime
             (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
                 (docs :: [Entity Document]) <- selectList [] []
-                -- indexDocs docs
+                indexDocs docs
                 tCount <- count ([] :: [Filter TokenType])
                 return (length docs, tCount)
             end <- getCurrentTime
