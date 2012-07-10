@@ -15,7 +15,7 @@ import           Data.Aeson
 import qualified Data.Aeson.Types as AT
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
-import           Data.Maybe (catMaybes, maybe)
+import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
 import           Data.Time
@@ -89,7 +89,8 @@ postReindexR :: Handler RepJson
 postReindexR = do
     config <- persistConfig `fmap` getYesod
     mvar   <- liftIO newEmptyMVar
-    liftIO . forkIO $ do
+    -- Change output to Either and include error message.
+    _ <- liftIO . forkIO $ do
         (index config >>= putMVar mvar . Just) `onException` (putMVar mvar Nothing)
 
     output <- liftIO $ takeMVar mvar
