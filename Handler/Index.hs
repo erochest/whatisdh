@@ -15,6 +15,7 @@ import           Data.Aeson
 import qualified Data.Aeson.Types as AT
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
+import           Data.List.Split (splitEvery)
 import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
@@ -25,6 +26,7 @@ import           Database.Persist.Postgresql
 import           Database.Persist.Store
 import           Import
 import           Text.Coffee
+import           System.IO
 
 getIndexR :: Handler RepHtmlJson
 getIndexR = do
@@ -107,11 +109,21 @@ postReindexR = do
         index config = do
             start  <- getCurrentTime
             (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
+                log "indexing"
+                log "deleting index"
                 deleteIndex
+                -- It may be more efficient to page through the results at the
+                -- DB level and to run each call to indexDocs in its own
+                -- transaction.
+                log "retrieving documents"
                 (docs :: [Entity Document]) <- selectList [] []
-                indexDocs docs
+                log "indexing document"
+                mapM_ indexDocs $ splitEvery 1000 docs
+                log "counting token types"
                 tCount <- count ([] :: [Filter TokenType])
+                log "done"
                 return (length docs, tCount)
             end <- getCurrentTime
             return (dCount, tCount, end `diffUTCTime` start)
+            where log msg = liftIO (putStrLn msg >> hFlush stdout)
 

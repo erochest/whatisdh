@@ -19,6 +19,7 @@ import           Database.Persist.GenericSql.Raw
 import           Database.Persist.Store
 import           Import
 import           Text.Tokenizer (tokenize)
+import           System.IO (stdout, hFlush)
 
 withTmpObj :: MonadIO m => T.Text -> T.Text -> T.Text -> SqlPersist m a -> SqlPersist m a
 withTmpObj objType name createSql action = do
@@ -58,7 +59,12 @@ indexDocs docs = do
                         chain_id integer default null, \
                         text varchar not null, \
                         category varchar not null ); "
-    liftIO $ putStrLn "creating temporary table"
+        indexSql  = " create index idx_tmp_indexing \
+                      on tmp_indexing \
+                      (seq, doc_id, token_id, bigram_id, chain_id, text) \
+                      ; "
+    logLine ("indexing " ++ (show (length docs)) ++ " documents")
+    logLine ("creating temporary table")
     withTmpTable "tmp_indexing" createSql $ do
         -- TokenType
         let populate  = " INSERT INTO tmp_indexing \
@@ -74,17 +80,21 @@ indexDocs docs = do
                           FROM tmp_indexing tmp \
                           WHERE token_id IS NULL; "
 
-        liftIO $ putStrLn "populating TokenType"
+        logLine ("populating TokenType")
         execSeq populate (zip ([1..] :: [Int]) tokens) $ \(i, (d, (t, c))) ->
             [ toPersistValue i
             , toPersistValue d
             , toPersistValue t
             , toPersistValue c
             ]
+
+        logLine ("creating temporary index")
+        execSql indexSql
+
         upInsertUp updateSql insertSql
 
         -- TokenIndex
-        liftIO $ putStrLn "populating TokenIndex"
+        logLine "populating TokenIndex"
         let deleteSql = " DELETE FROM token_index \
                           WHERE document_id IN ( \
                           SELECT DISTINCT doc_id FROM tmp_indexing  \
@@ -98,7 +108,7 @@ indexDocs docs = do
         execSql insertSql
 
         -- Bigram
-        liftIO $ putStrLn "populating Bigram"
+        logLine "populating Bigram"
         let updateSql = " UPDATE tmp_indexing \
                           SET bigram_id=b.id \
                           FROM bigram b, tmp_indexing t2 \
@@ -114,10 +124,16 @@ indexDocs docs = do
                           WHERE t1.bigram_id IS NULL AND \
                                 t1.seq=t2.seq-1 AND t1.doc_id=t2.doc_id \
                           ; "
-        upInsertUp updateSql insertSql
+        -- upInsertUp updateSql insertSql
+        logLine "\tupdate 1"
+        execSql updateSql
+        logLine "\tinsert"
+        execSql insertSql
+        logLine "\tupdate 2"
+        execSql updateSql
 
         -- TokenChain
-        liftIO $ putStrLn "populating TokenChain"
+        logLine "populating TokenChain"
         let updateSql = " UPDATE tmp_indexing \
                           SET chain_id=c.id \
                           FROM token_chain c, tmp_indexing t3 \
@@ -179,14 +195,20 @@ indexDocs docs = do
         triples (a: (as@(b: (c: _)))) = (a, b, c) : triples as
         triples _                     = []
 
+logLine :: MonadIO m => String -> m ()
+logLine msg = liftIO (putStrLn msg >> hFlush stdout)
+
 type IndexKey = (Int, T.Text)
 
--- deleteIndex :: MonadIO m => SqlPersist m ()
-deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). PersistQuery b m
+deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()
 deleteIndex = do
+    logLine "\tdelete TokenChain"
     deleteWhere ([] :: [Filter TokenChain])
+    logLine "\tdelete Bigram"
     deleteWhere ([] :: [Filter Bigram])
+    logLine "\tdelete TokenIndex"
     deleteWhere ([] :: [Filter TokenIndex])
+    logLine "\tdelete TokenType"
     deleteWhere ([] :: [Filter TokenType])
 
