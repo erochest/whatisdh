@@ -15,6 +15,7 @@ Document
     hash Text
     content Text
     UniqueDocument hash
+    deriving Show
 
 TokenType
     text Text
