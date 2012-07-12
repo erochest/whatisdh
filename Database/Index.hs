@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -10,7 +11,9 @@ module Database.Index
 
 import           Control.Monad
 import           Control.Monad.IO.Class
+import           Control.Monad.Trans.Resource (MonadThrow, MonadUnsafeIO)
 import qualified Data.List as L
+import           Data.List.Split (splitEvery)
 import           Data.Monoid
 import qualified Data.HashMap.Strict as M
 import qualified Data.HashSet as S
@@ -223,15 +226,17 @@ deleteIndex = do
     logLine "\tdelete TokenType"
     deleteWhere ([] :: [Filter TokenType])
 
-reIndexAll :: MonadIO m => Maybe Int -> SqlPersist m ()
+reIndexAll :: forall (m :: * -> *)
+           .  (MonadUnsafeIO m, MonadThrow m, MonadIO m, MonadBaseControl IO m)
+           => Maybe Int -> SqlPersist m ()
 reIndexAll chunkSize = do
     deleteIndex
 
     -- It may be more efficient to page through the results at the DB level and
     -- to run each call to indexDocs in its own transaction.
     (docs :: [Entity Document]) <- selectList [] []
-    docChunks = case chunkSize of
-        Just cs -> splitEvery cs docs
-        Nothing -> [docs]
+    let docChunks = case chunkSize of
+            Just cs -> splitEvery cs docs
+            Nothing -> [docs]
     mapM_ indexDocs docChunks
 

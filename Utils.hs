@@ -20,7 +20,6 @@ import           Text.Blaze.Html5
 import           Prelude
 import           Yesod.Core
 import           Yesod.Form
-import           Yesod.Persist
 
 
 listToUl :: [T.Text] -> Html

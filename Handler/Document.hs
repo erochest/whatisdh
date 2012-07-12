@@ -16,6 +16,7 @@ module Handler.Document
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Time
+import           Database.Index (indexDocs)
 import           Import
 import           Text.Blaze (Markup)
 import           Yesod.Auth
@@ -56,7 +57,10 @@ postDocNewR = do
                                now
                                hash
                                content
-            docId <- runDB $ insert doc
+            docId <- runDB $ do
+                did   <- insert doc
+                indexDocs [Entity did doc]
+                return did
             redirect $ DocR docId
         FormFailure msgs -> do
             setMessage $ listToUl msgs

@@ -15,7 +15,6 @@ import           Data.Aeson
 import qualified Data.Aeson.Types as AT
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
-import           Data.List.Split (splitEvery)
 import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
@@ -109,7 +108,7 @@ postReindexR = do
         index config = do
             start  <- getCurrentTime
             (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
-                reIndexAll
+                reIndexAll $ Just 1000
                 (,) <$> count ([] :: [Filter Document])
                     <*> count ([] :: [Filter TokenType])
             end <- getCurrentTime
