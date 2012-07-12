@@ -169,7 +169,7 @@ indexDocs docs = do
             viewSql   = " CREATE TEMPORARY VIEW tmp_freq_view AS \
                           SELECT c.bigram_id AS bid, c.t3_id AS tid, COUNT(*) as freq \
                           FROM tmp_chains c \
-                          GROUP BY b.bigram_id, t3.token_id \
+                          GROUP BY c.bigram_id, c.t3_id \
                           ; "
             freqSql   = " UPDATE token_chain \
                           SET frequency=frequency+freq \
