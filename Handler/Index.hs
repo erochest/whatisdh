@@ -20,7 +20,7 @@ import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
 import           Data.Time
-import           Database.Index (indexDocs, deleteIndex)
+import           Database.Index (reIndexAll)
 import           Database.Persist.GenericSql.Raw
 import           Database.Persist.Postgresql
 import           Database.Persist.Store
@@ -109,20 +109,9 @@ postReindexR = do
         index config = do
             start  <- getCurrentTime
             (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
-                log "indexing"
-                log "deleting index"
-                deleteIndex
-                -- It may be more efficient to page through the results at the
-                -- DB level and to run each call to indexDocs in its own
-                -- transaction.
-                log "retrieving documents"
-                (docs :: [Entity Document]) <- selectList [] []
-                log "indexing document"
-                mapM_ indexDocs $ splitEvery 1000 docs
-                log "counting token types"
-                tCount <- count ([] :: [Filter TokenType])
-                log "done"
-                return (length docs, tCount)
+                reIndexAll
+                (,) <$> count ([] :: [Filter Document])
+                    <*> count ([] :: [Filter TokenType])
             end <- getCurrentTime
             return (dCount, tCount, end `diffUTCTime` start)
             where log msg = liftIO (putStrLn msg >> hFlush stdout)
