@@ -24,8 +24,9 @@
 /document/#DocumentId/delete DocDeleteR GET POST
 
 -- Index routes (TokenType, Bigram, and TokenChain)
-/index         IndexR   GET
-/index/reindex ReindexR GET POST
+/index         IndexR     GET
+/index/data    IndexDataR GET
+/index/reindex ReindexR   GET POST
 
 -- Some debugging routes.
 -- /debug/users DebugUsersR GET

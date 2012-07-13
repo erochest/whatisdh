@@ -103,7 +103,7 @@ loadData dbconf userId inputFiles = forM_ inputFiles $ \inputFile -> do
     start <- liftIO getCurrentTime
     echo (toTextIgnore inputFile)
     rows <- liftIO $ readPosts inputFile
-    docs <- liftIO $ mapM (postToDocument inputFile userId) rows
+    docs <- liftIO . mapM (postToDocument inputFile userId) $ take 1000 rows
     let docSet = M.elems $ L.foldl' (\m d -> M.insert (documentHash d) d m)
                                     M.empty docs
     inspect ("row count:", length rows)

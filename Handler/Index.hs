@@ -3,6 +3,7 @@
 
 module Handler.Index
     ( getIndexR
+    , getIndexDataR
     , getReindexR
     , postReindexR
     ) where
@@ -27,57 +28,70 @@ import           Import
 import           Text.Coffee
 import           System.IO
 
-getIndexR :: Handler RepHtmlJson
-getIndexR = do
-    let select = " SELECT tc.id, b.id, t1.text, t2.text, t3.text \
+getIndexR :: Handler RepHtml
+getIndexR = defaultLayout $ do
+    setTitle "What is DH? Token Index"
+
+    addScript $ StaticR js_jquery_1_7_2_min_js
+    addScript $ StaticR js_underscore_min_js
+    addScript $ StaticR js_backbone_min_js
+    addScript $ StaticR js_backbone_paginator_min_js
+
+    toWidget $(coffeeFile "templates/index.coffee")
+    $(widgetFile "index")
+
+getIndexDataR :: Handler RepJson
+getIndexDataR = do
+    Pagination moffset mlimit morderby msort <- runInputGet paginationForm
+
+    let showpack = T.pack . show
+
+        totuple :: [PersistValue] -> Maybe (Int, Int, T.Text, T.Text, T.Text, Int)
+        totuple [ PersistInt64 tcId
+                , PersistInt64 bId
+                , PersistText t1
+                , PersistText t2
+                , PersistText t3
+                , PersistInt64 fq
+                ] =
+            Just (fromIntegral tcId, fromIntegral bId, t1, t2, t3, fromIntegral fq)
+        totuple _ = Nothing
+
+        tojson :: (Int, Int, T.Text, T.Text, T.Text, Int) -> Value
+        tojson (tcId, bId, t1, t2, t3, fq) = AT.object [ "chain_id"  .= tcId
+                                                       , "bigram_id" .= bId
+                                                       , "token_1"   .= t1
+                                                       , "token_2"   .= t2
+                                                       , "token_3"   .= t3
+                                                       , "freq"      .= fq
+                                                       ]
+
+        select = " SELECT tc.id, b.id, t2.text token_1, t2.text token_2, t3.text token_3, tc.frequency \
                    FROM token_chain tc \
                    JOIN bigram b ON tc.bigram=b.id \
                    JOIN token_type t1 ON b.fst_token=t1.id \
                    JOIN token_type t2 ON b.snd_token=t2.id \
                    JOIN token_type t3 ON tc.next=t3.id \
                    "
-        showpack = T.pack . show
-
-        totuple :: [PersistValue] -> Maybe (Int, Int, T.Text, T.Text, T.Text)
-        totuple [PersistInt64 tcId, PersistInt64 bId, PersistText t1, PersistText t2, PersistText t3] =
-            Just (fromIntegral tcId, fromIntegral bId, t1, t2, t3)
-        totuple _ = Nothing
-
-        tojson :: (Int, Int, T.Text, T.Text, T.Text) -> Value
-        tojson (tcId, bId, t1, t2, t3) = AT.object [ "chain_id"  .= tcId
-                                                   , "bigram_id" .= bId
-                                                   , "tokens"    .= array [t1, t2, t3]
-                                                   ]
-
-    Pagination moffset mlimit morderby msort <- runInputGet paginationForm
-    let sql = T.concat $ [select] ++ catMaybes
+        sql = T.concat $ [select] ++ catMaybes
                 [ (mappend " ORDER BY ")          <$> morderby
                 , (mappend " ")                   <$> msort
                 , (mappend " LIMIT " . showpack)  <$> mlimit
                 , (mappend " OFFSET " . showpack) <$> moffset
                 , Just ";"
                 ]
+
     $(logDebug) ("SQL: " `mappend` sql)
     results <- runDB . C.runResourceT $     withStmt sql []
-                                      C.$= CL.map totuple
-                                      C.$= CL.map (fmap tojson)
+                                      C.$= CL.map (fmap tojson . totuple)
                                       C.$$ CL.consume
     $(logDebug) ("RESULTS COUNT: " `mappend` showpack (length results))
+    chainCount <- runDB $ count ([] :: [Filter TokenChain])
 
-    let html = do
-            setTitle "What is DH? Token Index"
+    jsonToRepJson $ AT.object [ "count"   .= chainCount
+                              , "results" .= array (catMaybes results)
+                              ]
 
-            addScript $ StaticR js_jquery_1_7_2_min_js
-            addScript $ StaticR js_underscore_min_js
-            addScript $ StaticR js_backbone_min_js
-            addScript $ StaticR js_backbone_paginator_min_js
-
-            toWidget $(coffeeFile "templates/index.coffee")
-            $(widgetFile "index")
-
-        jsResults = array $ catMaybes results
-
-    defaultLayoutJson html jsResults
 
 getReindexR :: Handler RepHtml
 getReindexR = defaultLayout $ do
