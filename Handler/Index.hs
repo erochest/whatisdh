@@ -112,20 +112,26 @@ postReindexR = do
     jsonToRepJson $ maybe AT.Null outToJs output
 
     where
-        outToJs (dCount, tCount, elapsed) =
+        outToJs (dCount, tCount, bCount, trCount, elapsed) =
             AT.object [ "document_count" .= dCount
                       , "token_count"    .= tCount
+                      , "bigram_count"   .= bCount
+                      , "trigram_count"  .= trCount
                       , "elapsed_time"   .= show elapsed
                       ]
 
-        index :: PostgresConf -> IO (Int, Int, NominalDiffTime)
+        index :: PostgresConf -> IO (Int, Int, Int, Int, NominalDiffTime)
         index config = do
             start  <- getCurrentTime
-            (dCount, tCount) <- withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
-                reIndexAll $ Just 1000
-                (,) <$> count ([] :: [Filter Document])
-                    <*> count ([] :: [Filter TokenType])
+            (dCount, tCount, bCount, trCount) <-
+                withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
+                    reIndexAll $ Just 1000
+                    dc  <- count ([] :: [Filter Document])
+                    tc  <- count ([] :: [Filter TokenType])
+                    bc  <- count ([] :: [Filter Bigram])
+                    trc <- count ([] :: [Filter TokenChain])
+                    return (dc, tc, bc, trc)
             end <- getCurrentTime
-            return (dCount, tCount, end `diffUTCTime` start)
+            return (dCount, tCount, bCount, trCount, end `diffUTCTime` start)
             where log msg = liftIO (putStrLn msg >> hFlush stdout)
 
