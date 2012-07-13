@@ -3,4 +3,30 @@
 
 <h2>Token Index
 
-<div #token-index>
+<ul #trigramlist>
+  <li>
+    <div .header.row>
+      <span .token>
+        <b>Token 1
+      <span .token>
+        <b>Token 2
+      <span .token>
+        <b>Token 3
+      <span .freq>
+        <b>Frequency
+
+<div #pagination>
+
+<script #trigramTemplate type='text/html'>
+  <div .result.row>
+    <span .token><%= token_1 %>
+    <span .token><%= token_2 %>
+    <span .token><%= token_3 %>
+    <span .freq><%= freq %>
+  <div .clearfix>
+
+<script #tmpServerPagination type='text/html'>
+  <div .breadcrumb>
+    <% if (totalPages > currentPage) { %>
+      <a href='#' class='btn long servernext'>Show More
+    <% } %>

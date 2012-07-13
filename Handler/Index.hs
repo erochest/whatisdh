@@ -34,6 +34,7 @@ getIndexR = defaultLayout $ do
 
     addScript $ StaticR js_jquery_1_7_2_min_js
     addScript $ StaticR js_underscore_min_js
+    addScript $ StaticR js_json2_js
     addScript $ StaticR js_backbone_min_js
     addScript $ StaticR js_backbone_paginator_min_js
 
@@ -58,7 +59,7 @@ getIndexDataR = do
         totuple _ = Nothing
 
         tojson :: (Int, Int, T.Text, T.Text, T.Text, Int) -> Value
-        tojson (tcId, bId, t1, t2, t3, fq) = AT.object [ "chain_id"  .= tcId
+        tojson (tcId, bId, t1, t2, t3, fq) = AT.object [ "id"        .= tcId
                                                        , "bigram_id" .= bId
                                                        , "token_1"   .= t1
                                                        , "token_2"   .= t2
@@ -66,7 +67,7 @@ getIndexDataR = do
                                                        , "freq"      .= fq
                                                        ]
 
-        select = " SELECT tc.id, b.id, t2.text token_1, t2.text token_2, t3.text token_3, tc.frequency \
+        select = " SELECT tc.id, b.id, t1.text token_1, t2.text token_2, t3.text token_3, tc.frequency freq \
                    FROM token_chain tc \
                    JOIN bigram b ON tc.bigram=b.id \
                    JOIN token_type t1 ON b.fst_token=t1.id \

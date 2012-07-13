@@ -3,3 +3,22 @@
     float: right;
 }
 
+ul#trigramlist {
+    list-style: none;
+}
+
+ul#trigramlist li {
+}
+
+ul#trigramlist li span {
+    float: left;
+    height: 1.25em;
+    width: 100px;
+    border: 1px solid silver;
+    padding: 3px;
+}
+
+.token:after {
+    content: " "
+}
+
