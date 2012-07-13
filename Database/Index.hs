@@ -54,7 +54,7 @@ upInsertUp updateSql insertSql = mapM_ execSql [ updateSql
 -- TokenChain tables.
 indexDocs :: MonadIO m => [Entity Document] -> SqlPersist m ()
 indexDocs docs = do
-    logLine ("indexing " ++ (show (length docs)) ++ " documents")
+    -- logLine ("indexing " ++ (show (length docs)) ++ " documents")
     let createSql = " create temporary table tmp_indexing \
                       ( seq integer not null, \
                         doc_id integer not null, \
@@ -65,7 +65,7 @@ indexDocs docs = do
                       on tmp_indexing \
                       (seq, doc_id, token_id, text) \
                       ; "
-    logLine ("creating temporary table")
+    -- logLine ("creating temporary table")
     withTmpTable "tmp_indexing" createSql $ do
         -- TokenType
         let populate  = " INSERT INTO tmp_indexing \
@@ -81,7 +81,7 @@ indexDocs docs = do
                           FROM tmp_indexing tmp \
                           WHERE token_id IS NULL; "
 
-        logLine ("populating TokenType")
+        -- logLine ("populating TokenType")
         execSeq populate (zip ([1..] :: [Int]) tokens) $ \(i, (d, (t, c))) ->
             [ toPersistValue i
             , toPersistValue d
@@ -89,13 +89,13 @@ indexDocs docs = do
             , toPersistValue c
             ]
 
-        logLine ("creating temporary index")
+        -- logLine ("creating temporary index")
         execSql indexSql
 
         upInsertUp updateSql insertSql
 
         -- TokenIndex
-        logLine "populating TokenIndex"
+        -- logLine "populating TokenIndex"
         let deleteSql = " DELETE FROM token_index \
                           WHERE document_id IN ( \
                           SELECT DISTINCT doc_id FROM tmp_indexing  \
@@ -121,14 +121,14 @@ indexDocs docs = do
                        ( t1, t2, t3 ); "
         index2Sql  = " CREATE INDEX idx_tmp_chains_id ON tmp_chains \
                        ( bigram_id, chain_id, t1_id, t2_id, t3_id ); "
-    logLine ("creating temporary table")
+    -- logLine ("creating temporary table")
     withTmpTable "tmp_chains" createSql $ do
-        logLine ("indexing chains")
+        -- logLine ("indexing chains")
         execSql index1Sql
         execSql index2Sql
 
         -- Bigram
-        logLine "populating Bigram"
+        -- logLine "populating Bigram"
         let insertCSql  = "INSERT INTO tmp_chains (t1, t2, t3) VALUES (?, ?, ?);"
             updateT1Sql = "UPDATE tmp_chains SET t1_id=t.id \
                            FROM token_type t WHERE t.text=t1;"
@@ -153,7 +153,7 @@ indexDocs docs = do
         upInsertUp updateSql insertSql
 
         -- TokenChain
-        logLine "populating TokenChain"
+        -- logLine "populating TokenChain"
         let updateSql = " UPDATE tmp_chains \
                           SET chain_id=c.id \
                           FROM token_chain c \
@@ -189,13 +189,13 @@ indexDocs docs = do
                 Right tkns -> map ((,) (fromIntegral did)) tkns
         tokenizeDoc _ = []
 
-        tokenSet = L.foldl' (\m (_, (t, c)) -> M.insert t c m) M.empty tokens
-
         addFreq :: M.HashMap IndexKey Int
                 -> (Int, (T.Text, TokenCategory))
                 -> M.HashMap IndexKey Int
         addFreq m (did, (t, _)) = M.insertWith (+) (did, t) 1 m
 
+        -- For some reason, removing this causes `chains` not to compile. It's
+        -- unused, but I'm leaving it in here for now.
         dFreqs = L.foldl' addFreq M.empty tokens
 
         chains = concatMap (triples . map (fst . snd)) $ L.groupBy gb tokens
@@ -217,13 +217,13 @@ type IndexKey = (Int, T.Text)
 deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()
 deleteIndex = do
-    logLine "\tdelete TokenChain"
+    -- logLine "\tdelete TokenChain"
     deleteWhere ([] :: [Filter TokenChain])
-    logLine "\tdelete Bigram"
+    -- logLine "\tdelete Bigram"
     deleteWhere ([] :: [Filter Bigram])
-    logLine "\tdelete TokenIndex"
+    -- logLine "\tdelete TokenIndex"
     deleteWhere ([] :: [Filter TokenIndex])
-    logLine "\tdelete TokenType"
+    -- logLine "\tdelete TokenType"
     deleteWhere ([] :: [Filter TokenType])
 
 reIndexAll :: forall (m :: * -> *)
