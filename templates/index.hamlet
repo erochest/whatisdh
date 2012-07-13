@@ -28,5 +28,5 @@
 <script #tmpServerPagination type='text/html'>
   <div .breadcrumb>
     <% if (totalPages > currentPage) { %>
-      <a href='#' class='btn long servernext'>Show More
+      <a .btn.long.servernext href="#">Show More
     <% } %>
