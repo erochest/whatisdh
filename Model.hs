@@ -25,6 +25,7 @@ data TokenCategory
     | MarkToken
     | WhiteSpaceToken
     | UnknownToken
+    | CompositeToken
     deriving (Show, Read, Eq)
 derivePersistField "TokenCategory"
 
