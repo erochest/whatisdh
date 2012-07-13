@@ -94,4 +94,4 @@
 
 
 # Heroku configuration that runs your app
-web: ./dist/build/whatisdh/whatisdh production -p $PORT
+web: ./whatisdh production -p $PORT
