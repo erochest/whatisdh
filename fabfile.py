@@ -33,7 +33,7 @@ def build():
         checkout_master()
         git_pull()
 
-        run('[ ! -s dist ] && ln -s dist_whatisdh dist')
+        # run('[ ! -s dist ] && ln -s dist_whatisdh dist')
         with prefix(hsact('whatisdh')):
             run('cabal clean')
             run('cabal install')
@@ -47,7 +47,7 @@ def build():
 
 @task
 def get_deploy():
-    local('git checkout deploy')
+    local('git pull build')
     local('git push heroku deploy:master')
 
 
