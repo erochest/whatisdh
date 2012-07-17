@@ -47,7 +47,7 @@ def build():
 
 @task
 def deploy():
-    local('git pull build')
+    local('git pull build deploy')
     local('git push --force heroku deploy:master')
 
 
@@ -73,8 +73,13 @@ def destroy():
 @task
 def git_checkout(branch, create=False, force=False):
     b = '-b ' if create else ''
+
+    # A work-around for not having -B is earlier versions of git. This is not
+    # transactional, though.
     if b and force:
-        b = '-B '
+        b = ''
+        run("git branch -f '%s'" % (branch,))
+
     run("git checkout %s '%s'" % (b, branch,))
 
 
