@@ -93,20 +93,7 @@ indexDocs docs = do
 
         upInsertUp updateSql insertSql
 
-        -- TokenIndex
-        -- logLine "populating TokenIndex"
-        let deleteSql = " DELETE FROM token_index \
-                          WHERE document_id IN ( \
-                          SELECT DISTINCT doc_id FROM tmp_indexing  \
-                          ) ; "
-            insertSql = " INSERT INTO token_index \
-                          (token_id, document_id, freq) \
-                          SELECT token_id, doc_id, COUNT(*) \
-                          FROM tmp_indexing \
-                          GROUP BY token_id, doc_id ; "
-        execSql deleteSql
-        execSql insertSql
-
+    -- TokenIndex
     -- Bigram
     -- TokenChain
 
@@ -147,8 +134,6 @@ type IndexKey = (Int, T.Text)
 deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()
 deleteIndex = do
-    -- logLine "\tdelete TokenIndex"
-    deleteWhere ([] :: [Filter TokenIndex])
     -- logLine "\tdelete TokenType"
     deleteWhere ([] :: [Filter TokenType])
 
