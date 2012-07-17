@@ -1,6 +1,6 @@
 
 
-from fabric.api import cd, env, local, prefix, run, task
+from fabric.api import cd, env, lcd, local, prefix, run, task
 
 
 env.hosts = ['haskell-build.dev']
@@ -12,7 +12,8 @@ env.password = 'vagrant'
 
 @task
 def vagrant_up():
-    local('pushd ~/p/haskell-build/ ; vagrant up ; popd')
+    with lcd('~/p/haskell-build/'):
+        local('vagrant up')
 
 
 @task
@@ -59,7 +60,8 @@ def clean_deploy():
 
 @task
 def vagrant_suspend():
-    local('pushd ~/p/haskell-build/ ; vagrant suspend ; popd')
+    with lcd('~/p/haskell-build/'):
+        local('vagrant suspend')
 
 
 @task
