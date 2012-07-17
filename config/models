@@ -28,8 +28,3 @@ TokenIndex
     freq Int default=0
     UniqueIndex tokenId documentId
 
-Bigram
-    fstToken TokenTypeId
-    sndToken TokenTypeId
-    UniqueBigram fstToken sndToken
-

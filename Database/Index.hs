@@ -50,7 +50,7 @@ upInsertUp updateSql insertSql = mapM_ execSql [ updateSql
                                                , updateSql
                                                ]
 
--- This indexes the documents into the TokenType, TokenIndex and Bigram tables.
+-- This indexes the documents into the TokenType and TokenIndex tables.
 indexDocs :: MonadIO m => [Entity Document] -> SqlPersist m ()
 indexDocs docs = do
     -- logLine ("indexing " ++ (show (length docs)) ++ " documents")
@@ -107,51 +107,8 @@ indexDocs docs = do
         execSql deleteSql
         execSql insertSql
 
-    let createSql = " CREATE TEMPORARY TABLE tmp_chains \
-                      ( bigram_id integer default null, \
-                        chain_id integer default null, \
-                        t1_id integer default null, \
-                        t2_id integer default null, \
-                        t3_id integer default null, \
-                        t1 text, \
-                        t2 text, \
-                        t3 text ); "
-        index1Sql  = " CREATE INDEX idx_tmp_chains_text ON tmp_chains \
-                       ( t1, t2, t3 ); "
-        index2Sql  = " CREATE INDEX idx_tmp_chains_id ON tmp_chains \
-                       ( bigram_id, chain_id, t1_id, t2_id, t3_id ); "
-    -- logLine ("creating temporary table")
-    withTmpTable "tmp_chains" createSql $ do
-        -- logLine ("indexing chains")
-        execSql index1Sql
-        execSql index2Sql
-
-        -- Bigram
-        -- logLine "populating Bigram"
-        let insertCSql  = "INSERT INTO tmp_chains (t1, t2, t3) VALUES (?, ?, ?);"
-            updateT1Sql = "UPDATE tmp_chains SET t1_id=t.id \
-                           FROM token_type t WHERE t.text=t1;"
-            updateT2Sql = "UPDATE tmp_chains SET t2_id=t.id \
-                           FROM token_type t WHERE t.text=t2;"
-            updateT3Sql = "UPDATE tmp_chains SET t3_id=t.id \
-                           FROM token_type t WHERE t.text=t3;"
-            updateSql = " UPDATE tmp_chains SET bigram_id=b.id \
-                          FROM bigram b \
-                          WHERE bigram_id IS NULL AND \
-                                b.fst_token=t1_id AND b.snd_token=t2_id; "
-            insertSql = " INSERT INTO bigram (fst_token, snd_token) \
-                          SELECT DISTINCT t.t1_id, t.t2_id \
-                          FROM tmp_chains t \
-                          WHERE t.bigram_id IS NULL ;"
-        execSeq insertCSql chains $ \(t1, t2, t3) ->
-            [ toPersistValue t1
-            , toPersistValue t2
-            , toPersistValue t3
-            ]
-        mapM_ execSql [ updateT1Sql, updateT2Sql, updateT3Sql ]
-        upInsertUp updateSql insertSql
-
-        -- TokenChain
+    -- Bigram
+    -- TokenChain
 
     where
         tokens = L.concatMap tokenizeDoc docs
@@ -190,8 +147,6 @@ type IndexKey = (Int, T.Text)
 deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()
 deleteIndex = do
-    -- logLine "\tdelete Bigram"
-    deleteWhere ([] :: [Filter Bigram])
     -- logLine "\tdelete TokenIndex"
     deleteWhere ([] :: [Filter TokenIndex])
     -- logLine "\tdelete TokenType"
