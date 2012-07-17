@@ -32,13 +32,13 @@ def build():
     with cd('~/whatisdh'):
         checkout_master()
         git_pull()
+        git_checkout('deploy', True, True)
 
         # run('[ ! -s dist ] && ln -s dist_whatisdh dist')
         with prefix(hsact('whatisdh')):
             run('cabal clean')
             run('cabal install')
 
-        git_checkout('deploy', True)
         strip('whatisdh')
         run('git add whatisdh')
         run('git commit -m deploy')
@@ -71,8 +71,10 @@ def destroy():
 
 
 @task
-def git_checkout(branch, create=False):
+def git_checkout(branch, create=False, force=False):
     b = '-b ' if create else ''
+    if b and force:
+        b = '-B '
     run("git checkout %s '%s'" % (b, branch,))
 
 
