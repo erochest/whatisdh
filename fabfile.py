@@ -46,9 +46,9 @@ def build():
 
 
 @task
-def get_deploy():
+def deploy():
     local('git pull build')
-    local('git push heroku deploy:master')
+    local('git push --force heroku deploy:master')
 
 
 @task
