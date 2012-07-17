@@ -33,9 +33,3 @@ Bigram
     sndToken TokenTypeId
     UniqueBigram fstToken sndToken
 
-TokenChain
-    bigram BigramId
-    next TokenTypeId
-    frequency Int
-    UniqueChain bigram next
-

@@ -23,7 +23,7 @@
 /document/#DocumentId/edit   DocEditR   GET
 /document/#DocumentId/delete DocDeleteR GET POST
 
--- Index routes (TokenType, Bigram, and TokenChain)
+-- Index routes (TokenType and Bigram)
 /index         IndexR     GET
 /index/data    IndexDataR GET
 /index/reindex ReindexR   GET POST

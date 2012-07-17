@@ -50,8 +50,7 @@ upInsertUp updateSql insertSql = mapM_ execSql [ updateSql
                                                , updateSql
                                                ]
 
--- This indexes the documents into the TokenType, TokenIndex, Bigram, and
--- TokenChain tables.
+-- This indexes the documents into the TokenType, TokenIndex and Bigram tables.
 indexDocs :: MonadIO m => [Entity Document] -> SqlPersist m ()
 indexDocs docs = do
     -- logLine ("indexing " ++ (show (length docs)) ++ " documents")
@@ -153,32 +152,6 @@ indexDocs docs = do
         upInsertUp updateSql insertSql
 
         -- TokenChain
-        -- logLine "populating TokenChain"
-        let updateSql = " UPDATE tmp_chains \
-                          SET chain_id=c.id \
-                          FROM token_chain c \
-                          WHERE chain_id IS NULL AND \
-                                bigram_id=c.bigram AND \
-                                t3_id=c.next \
-                          ; "
-            insertSql = " INSERT INTO token_chain (bigram, next, frequency) \
-                          SELECT DISTINCT c.bigram_id, c.t3_id, 0 \
-                          FROM tmp_chains c \
-                          WHERE c.chain_id IS NULL \
-                          ; "
-            viewSql   = " CREATE TEMPORARY VIEW tmp_freq_view AS \
-                          SELECT c.bigram_id AS bid, c.t3_id AS tid, COUNT(*) as freq \
-                          FROM tmp_chains c \
-                          GROUP BY c.bigram_id, c.t3_id \
-                          ; "
-            freqSql   = " UPDATE token_chain \
-                          SET frequency=frequency+freq \
-                          FROM tmp_freq_view \
-                          WHERE tmp_freq_view.bid=bigram AND \
-                                tmp_freq_view.tid=next \
-                          ; "
-        upInsertUp updateSql insertSql
-        withTmpView "tmp_freq_view" viewSql $ execSql freqSql
 
     where
         tokens = L.concatMap tokenizeDoc docs
@@ -217,8 +190,6 @@ type IndexKey = (Int, T.Text)
 deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()
 deleteIndex = do
-    -- logLine "\tdelete TokenChain"
-    deleteWhere ([] :: [Filter TokenChain])
     -- logLine "\tdelete Bigram"
     deleteWhere ([] :: [Filter Bigram])
     -- logLine "\tdelete TokenIndex"

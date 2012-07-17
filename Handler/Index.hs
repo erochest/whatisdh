@@ -87,10 +87,10 @@ getIndexDataR = do
                                       C.$= CL.map (fmap tojson . totuple)
                                       C.$$ CL.consume
     $(logDebug) ("RESULTS COUNT: " `mappend` showpack (length results))
-    chainCount <- runDB $ count ([] :: [Filter TokenChain])
+    -- chainCount <- runDB $ count ([] :: [Filter TokenChain])
 
-    jsonToRepJson $ AT.object [ "count"   .= chainCount
-                              , "results" .= array (catMaybes results)
+    jsonToRepJson $ AT.object [ -- "count"   .= chainCount
+                              "results" .= array (catMaybes results)
                               ]
 
 
@@ -117,7 +117,7 @@ postReindexR = do
             AT.object [ "document_count" .= dCount
                       , "token_count"    .= tCount
                       , "bigram_count"   .= bCount
-                      , "trigram_count"  .= trCount
+                      -- , "trigram_count"  .= trCount
                       , "elapsed_time"   .= show elapsed
                       ]
 
@@ -130,8 +130,8 @@ postReindexR = do
                     dc  <- count ([] :: [Filter Document])
                     tc  <- count ([] :: [Filter TokenType])
                     bc  <- count ([] :: [Filter Bigram])
-                    trc <- count ([] :: [Filter TokenChain])
-                    return (dc, tc, bc, trc)
+                    -- trc <- count ([] :: [Filter TokenChain])
+                    return (dc, tc, bc, 0)
             end <- getCurrentTime
             return (dCount, tCount, bCount, trCount, end `diffUTCTime` start)
             where log msg = liftIO (putStrLn msg >> hFlush stdout)
