@@ -17,8 +17,3 @@ Document
     UniqueDocument hash
     deriving Show
 
-TokenType
-    text Text
-    tokenCategory TokenCategory
-    UniqueTokenType text
-

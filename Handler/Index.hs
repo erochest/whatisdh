@@ -115,7 +115,7 @@ postReindexR = do
     where
         outToJs (dCount, tCount, bCount, trCount, elapsed) =
             AT.object [ "document_count" .= dCount
-                      , "token_count"    .= tCount
+                      -- , "token_count"    .= tCount
                       -- , "bigram_count"   .= bCount
                       -- , "trigram_count"  .= trCount
                       , "elapsed_time"   .= show elapsed
@@ -128,10 +128,10 @@ postReindexR = do
                 withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
                     reIndexAll $ Just 1000
                     dc  <- count ([] :: [Filter Document])
-                    tc  <- count ([] :: [Filter TokenType])
+                    -- tc  <- count ([] :: [Filter TokenType])
                     -- bc  <- count ([] :: [Filter Bigram])
                     -- trc <- count ([] :: [Filter TokenChain])
-                    return (dc, tc, 0, 0)
+                    return (dc, 0, 0, 0)
             end <- getCurrentTime
             return (dCount, tCount, bCount, trCount, end `diffUTCTime` start)
             where log msg = liftIO (putStrLn msg >> hFlush stdout)

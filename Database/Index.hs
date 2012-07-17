@@ -53,46 +53,8 @@ upInsertUp updateSql insertSql = mapM_ execSql [ updateSql
 -- This indexes the documents into the TokenType and TokenIndex tables.
 indexDocs :: MonadIO m => [Entity Document] -> SqlPersist m ()
 indexDocs docs = do
-    -- logLine ("indexing " ++ (show (length docs)) ++ " documents")
-    let createSql = " create temporary table tmp_indexing \
-                      ( seq integer not null, \
-                        doc_id integer not null, \
-                        token_id integer default null, \
-                        text varchar not null, \
-                        category varchar not null ); "
-        indexSql  = " create index idx_tmp_indexing \
-                      on tmp_indexing \
-                      (seq, doc_id, token_id, text) \
-                      ; "
-    -- logLine ("creating temporary table")
-    withTmpTable "tmp_indexing" createSql $ do
-        -- TokenType
-        let populate  = " INSERT INTO tmp_indexing \
-                          (seq, doc_id, text, category) \
-                          VALUES (?, ?, ?, ?) ;"
-            updateSql = " UPDATE tmp_indexing \
-                          SET token_id=token_type.id \
-                          FROM token_type \
-                          WHERE tmp_indexing.text=token_type.text AND \
-                                tmp_indexing.token_id IS NULL; "
-            insertSql = " INSERT INTO token_type (text, token_category) \
-                          SELECT DISTINCT tmp.text, tmp.category \
-                          FROM tmp_indexing tmp \
-                          WHERE token_id IS NULL; "
-
-        -- logLine ("populating TokenType")
-        execSeq populate (zip ([1..] :: [Int]) tokens) $ \(i, (d, (t, c))) ->
-            [ toPersistValue i
-            , toPersistValue d
-            , toPersistValue t
-            , toPersistValue c
-            ]
-
-        -- logLine ("creating temporary index")
-        execSql indexSql
-
-        upInsertUp updateSql insertSql
-
+    undefined
+    -- TokenType
     -- TokenIndex
     -- Bigram
     -- TokenChain
@@ -133,9 +95,8 @@ type IndexKey = (Int, T.Text)
 
 deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()
-deleteIndex = do
-    -- logLine "\tdelete TokenType"
-    deleteWhere ([] :: [Filter TokenType])
+deleteIndex =
+    undefined
 
 reIndexAll :: forall (m :: * -> *)
            .  (MonadUnsafeIO m, MonadThrow m, MonadIO m, MonadBaseControl IO m)
