@@ -14,6 +14,7 @@ Document
     uploadedOn UTCTime default=now()
     hash Text
     content Text
+    trigrams Text Maybe
     UniqueDocument hash
     deriving Show
 

@@ -59,34 +59,6 @@ indexDocs docs = do
     -- Bigram
     -- TokenChain
 
-    where
-        tokens = L.concatMap tokenizeDoc docs
-
-        tokenizeDoc (Entity (Key (PersistInt64 did)) (Document {..})) =
-            case tokenize documentContent of
-                Left _     -> []
-                Right tkns -> map ((,) (fromIntegral did)) tkns
-        tokenizeDoc _ = []
-
-        addFreq :: M.HashMap IndexKey Int
-                -> (Int, (T.Text, TokenCategory))
-                -> M.HashMap IndexKey Int
-        addFreq m (did, (t, _)) = M.insertWith (+) (did, t) 1 m
-
-        -- For some reason, removing this causes `chains` not to compile. It's
-        -- unused, but I'm leaving it in here for now.
-        dFreqs = L.foldl' addFreq M.empty tokens
-
-        chains = concatMap (triples . map (fst . snd)) $ L.groupBy gb tokens
-
-        gb (a, _) (b, _) = a == b
-
-        bigramSet = L.foldl' (\s (a, b, _) -> S.insert (a, b) s) S.empty chains
-
-        -- redefine in terms of `tails` and `catMaybes`?
-        triples :: [a] -> [(a, a, a)]
-        triples (a: (as@(b: (c: _)))) = (a, b, c) : triples as
-        triples _                     = []
 
 logLine :: MonadIO m => String -> m ()
 logLine msg = liftIO (putStrLn msg >> hFlush stdout)

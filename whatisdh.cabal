@@ -35,6 +35,7 @@ library
                      Handler.User
                      Handler.Debug
                      Database.Index
+                     Text.Index
                      Text.Tokenizer
                      Utils
                      Utils.Auth

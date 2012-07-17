@@ -57,6 +57,7 @@ postDocNewR = do
                                now
                                hash
                                content
+                               Nothing
             docId <- runDB $ do
                 did   <- insert doc
                 indexDocs [Entity did doc]
