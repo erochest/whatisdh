@@ -12,8 +12,10 @@ module Database.Index
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Resource (MonadThrow, MonadUnsafeIO)
+import           Data.Lens.Strict
 import qualified Data.List as L
 import           Data.List.Split (splitEvery)
+import           Data.Maybe
 import           Data.Monoid
 import qualified Data.HashMap.Strict as M
 import qualified Data.HashSet as S
@@ -23,15 +25,21 @@ import           Database.Persist.GenericSql.Raw
 import           Database.Persist.Store
 import           Import
 import           System.IO (stdout, hFlush)
+import           Text.Index (indexDocument)
+
+entval :: Lens (Entity entity) entity
+entval = lens entityVal updateval
+    where updateval :: entity -> Entity entity -> Entity entity
+          updateval e entity = entity { entityVal = e }
 
 -- This indexes the documents into the TokenType and TokenIndex tables.
-indexDocs :: MonadIO m => [Entity Document] -> SqlPersist m ()
-indexDocs docs = do
-    undefined
-    -- TokenType
-    -- TokenIndex
-    -- Bigram
-    -- TokenChain
+indexDocs :: (MonadIO m, MonadUnsafeIO m, MonadThrow m, MonadBaseControl IO m)
+          => [Entity Document] -> SqlPersist m ()
+indexDocs docs =
+    mapM_ updateTrigrams . catMaybes $ map ((^%%=) entval indexDocument) docs
+    where
+        updateTrigrams (Entity key doc) =
+            update key [ DocumentTrigrams =. (documentTrigrams doc) ]
 
 logLine :: MonadIO m => String -> m ()
 logLine msg = liftIO (putStrLn msg >> hFlush stdout)
