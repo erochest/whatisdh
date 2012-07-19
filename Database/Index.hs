@@ -12,7 +12,6 @@ module Database.Index
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Resource (MonadThrow, MonadUnsafeIO)
-import           Data.Lens.Strict
 import qualified Data.List as L
 import           Data.List.Split (splitEvery)
 import           Data.Maybe
@@ -27,16 +26,19 @@ import           Import
 import           System.IO (stdout, hFlush)
 import           Text.Index (indexDocument)
 
-entval :: Lens (Entity entity) entity
-entval = lens entityVal updateval
-    where updateval :: entity -> Entity entity -> Entity entity
-          updateval e entity = entity { entityVal = e }
+updateVal :: entity -> Entity entity -> Entity entity
+updateVal e entity = entity { entityVal = e }
+
+modifyEntity :: Functor f
+             => (a -> b) -> (b -> a -> a) -> (b -> f b) -> a -> f a
+modifyEntity getter setter modifier item =
+    (flip setter item) `fmap` (modifier $ getter item)
 
 -- This indexes the documents into the TokenType and TokenIndex tables.
 indexDocs :: (MonadIO m, MonadUnsafeIO m, MonadThrow m, MonadBaseControl IO m)
           => [Entity Document] -> SqlPersist m ()
 indexDocs docs =
-    mapM_ updateTrigrams . catMaybes $ map ((^%%=) entval indexDocument) docs
+    mapM_ updateTrigrams . catMaybes $ map (modifyEntity entityVal updateVal indexDocument) docs
     where
         updateTrigrams (Entity key doc) =
             update key [ DocumentTrigrams =. (documentTrigrams doc) ]

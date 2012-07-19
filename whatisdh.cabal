@@ -100,7 +100,6 @@ library
                  , yesod-persistent              >= 1.0        && < 1.2
                  , split                         >= 0.1        && < 0.3
                  , resourcet                     >= 0.3        && < 0.5
-                 , data-lens                     >= 2.0        && < 2.12
 
 executable         whatisdh
     if flag(library-only)
