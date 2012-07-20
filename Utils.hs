@@ -7,6 +7,9 @@ module Utils
     , visible
     , Pagination(..)
     , paginationForm
+    , fst3
+    , snd3
+    , trd3
     ) where
 
 
@@ -49,4 +52,13 @@ paginationForm =   Pagination
                <*> iopt intField  "limit"
                <*> iopt textField "orderby"
                <*> iopt textField "sort"
+
+fst3 :: (a, b, c) -> a
+fst3 (a, _, _) = a
+
+snd3 :: (a, b, c) -> b
+snd3 (_, a, _) = a
+
+trd3 :: (a, b, c) -> c
+trd3 (_, _, a) = a
 

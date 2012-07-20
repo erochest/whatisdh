@@ -45,15 +45,6 @@ getIndexR = defaultLayout $ do
     toWidget $(coffeeFile "templates/index.coffee")
     $(widgetFile "index")
 
-fst3 :: (a, b, c) -> a
-fst3 (a, _, _) = a
-
-snd3 :: (a, b, c) -> b
-snd3 (_, a, _) = a
-
-trd3 :: (a, b, c) -> c
-trd3 (_, _, a) = a
-
 getOrderF :: Maybe T.Text -> ([a] -> [a])
 getOrderF (Just "asc")  = id
 getOrderF (Just "desc") = L.reverse
@@ -112,9 +103,9 @@ postReindexR = do
     where
         outToJs (dCount, tCount, bCount, trCount, elapsed) =
             AT.object [ "document_count" .= dCount
-                      -- , "token_count"    .= tCount
-                      -- , "bigram_count"   .= bCount
-                      -- , "trigram_count"  .= trCount
+                      , "token_count"    .= tCount
+                      , "bigram_count"   .= bCount
+                      , "trigram_count"  .= trCount
                       , "elapsed_time"   .= show elapsed
                       ]
 
@@ -123,12 +114,19 @@ postReindexR = do
             start  <- getCurrentTime
             (dCount, tCount, bCount, trCount) <-
                 withPostgresqlConn (pgConnStr config) $ runSqlConn $ do
-                    reIndexAll $ Just 1000
-                    dc  <- count ([] :: [Filter Document])
-                    -- tc  <- count ([] :: [Filter TokenType])
-                    -- bc  <- count ([] :: [Filter Bigram])
-                    -- trc <- count ([] :: [Filter TokenChain])
-                    return (dc, 0, 0, 0)
+                    docs <- reIndexAll (Just 1000)
+
+                    let trigrams = accumTrigrams $ map entityVal docs
+                        dc       = length docs
+                        tc       = countTokens   trigrams
+                        bc       = countBigrams  trigrams
+                        trc      = countTrigrams trigrams
+                    liftIO . putStrLn $ L.concat [ "dc  = ", show dc, "\n"
+                                                 , "tc  = ", show tc, "\n"
+                                                 , "bc  = ", show bc, "\n"
+                                                 , "trc = ", show trc, "\n"
+                                                 ]
+                    return (dc, tc, bc, trc)
             end <- getCurrentTime
             return (dCount, tCount, bCount, trCount, end `diffUTCTime` start)
             where log msg = liftIO (putStrLn msg >> hFlush stdout)

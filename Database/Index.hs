@@ -36,10 +36,11 @@ modifyEntity getter setter modifier item =
 
 -- This indexes the documents into the TokenType and TokenIndex tables.
 indexDocs :: (MonadIO m, MonadUnsafeIO m, MonadThrow m, MonadBaseControl IO m)
-          => [Entity Document] -> SqlPersist m ()
-indexDocs docs =
-    mapM_ updateTrigrams . catMaybes $ map (modifyEntity entityVal updateVal indexDocument) docs
+          => [Entity Document] -> SqlPersist m [Entity Document]
+indexDocs docs = mapM_ updateTrigrams docs' >> return docs'
     where
+        docs'  = catMaybes $ map modify docs
+        modify = modifyEntity entityVal updateVal indexDocument
         updateTrigrams (Entity key doc) =
             update key [ DocumentTrigrams =. (documentTrigrams doc) ]
 
@@ -54,7 +55,7 @@ deleteIndex = updateWhere [] [DocumentTrigrams =. Nothing]
 
 reIndexAll :: forall (m :: * -> *)
            .  (MonadUnsafeIO m, MonadThrow m, MonadIO m, MonadBaseControl IO m)
-           => Maybe Int -> SqlPersist m ()
+           => Maybe Int -> SqlPersist m [Entity Document]
 reIndexAll chunkSize = do
     deleteIndex
 
@@ -64,5 +65,5 @@ reIndexAll chunkSize = do
     let docChunks = case chunkSize of
             Just cs -> splitEvery cs docs
             Nothing -> [docs]
-    mapM_ indexDocs docChunks
+    concat <$> mapM indexDocs docChunks
 
