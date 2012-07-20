@@ -14,8 +14,11 @@ import           Control.Concurrent
 import           Control.Exception hiding (Handler)
 import           Data.Aeson
 import qualified Data.Aeson.Types as AT
+import           Data.Ord
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
+import qualified Data.HashMap.Strict as M
+import qualified Data.List as L
 import           Data.Maybe (catMaybes)
 import           Data.Monoid
 import qualified Data.Text as T
@@ -26,6 +29,7 @@ import           Database.Persist.Postgresql
 import           Database.Persist.Store
 import           Import
 import           Text.Coffee
+import           Text.Index
 import           System.IO
 
 getIndexR :: Handler RepHtml
@@ -41,58 +45,51 @@ getIndexR = defaultLayout $ do
     toWidget $(coffeeFile "templates/index.coffee")
     $(widgetFile "index")
 
+fst3 :: (a, b, c) -> a
+fst3 (a, _, _) = a
+
+snd3 :: (a, b, c) -> b
+snd3 (_, a, _) = a
+
+trd3 :: (a, b, c) -> c
+trd3 (_, _, a) = a
+
+getOrderF :: Maybe T.Text -> ([a] -> [a])
+getOrderF (Just "asc")  = id
+getOrderF (Just "desc") = L.reverse
+getOrderF Nothing       = id
+
 getIndexDataR :: Handler RepJson
 getIndexDataR = do
     Pagination moffset mlimit morderby msort <- runInputGet paginationForm
 
-    let showpack = T.pack . show
+    trigrams' <- (accumTrigrams . map entityVal) <$> (runDB $ selectList [] [])
+    let sorter :: (Trigram, Int) -> (Trigram, Int) -> Ordering
+        sorter   = case morderby of
+                    Just "freq"    -> comparing snd
+                    Just "token_1" -> comparing (fst3 . fst)
+                    Just "token_2" -> comparing (snd3 . fst)
+                    Just "token_3" -> comparing (trd3 . fst)
+                    Nothing        -> comparing snd
+        order    = getOrderF msort
+        offset   = maybe 0   id moffset
+        limit    = maybe 100 id mlimit
+        trigrams = L.take limit
+                 . L.drop offset
+                 . order
+                 . L.sortBy sorter
+                 $ M.toList trigrams'
 
-        totuple :: [PersistValue] -> Maybe (Int, Int, T.Text, T.Text, T.Text, Int)
-        totuple [ PersistInt64 tcId
-                , PersistInt64 bId
-                , PersistText t1
-                , PersistText t2
-                , PersistText t3
-                , PersistInt64 fq
-                ] =
-            Just (fromIntegral tcId, fromIntegral bId, t1, t2, t3, fromIntegral fq)
-        totuple _ = Nothing
+        tojson :: ((T.Text, T.Text, T.Text), Int) -> Value
+        tojson ((t1, t2, t3), fq) = AT.object [ "token_1"   .= t1
+                                              , "token_2"   .= t2
+                                              , "token_3"   .= t3
+                                              , "freq"      .= fq
+                                              ]
 
-        tojson :: (Int, Int, T.Text, T.Text, T.Text, Int) -> Value
-        tojson (tcId, bId, t1, t2, t3, fq) = AT.object [ "id"        .= tcId
-                                                       -- , "bigram_id" .= bId
-                                                       , "token_1"   .= t1
-                                                       , "token_2"   .= t2
-                                                       , "token_3"   .= t3
-                                                       , "freq"      .= fq
-                                                       ]
-
-        select = " SELECT tc.id, b.id, t1.text token_1, t2.text token_2, t3.text token_3, tc.frequency freq \
-                   FROM token_chain tc \
-                   JOIN bigram b ON tc.bigram=b.id \
-                   JOIN token_type t1 ON b.fst_token=t1.id \
-                   JOIN token_type t2 ON b.snd_token=t2.id \
-                   JOIN token_type t3 ON tc.next=t3.id \
-                   "
-        sql = T.concat $ [select] ++ catMaybes
-                [ (mappend " ORDER BY ")          <$> morderby
-                , (mappend " ")                   <$> msort
-                , (mappend " LIMIT " . showpack)  <$> mlimit
-                , (mappend " OFFSET " . showpack) <$> moffset
-                , Just ";"
-                ]
-
-    $(logDebug) ("SQL: " `mappend` sql)
-    results <- runDB . C.runResourceT $     withStmt sql []
-                                      C.$= CL.map (fmap tojson . totuple)
-                                      C.$$ CL.consume
-    $(logDebug) ("RESULTS COUNT: " `mappend` showpack (length results))
-    -- chainCount <- runDB $ count ([] :: [Filter TokenChain])
-
-    jsonToRepJson $ AT.object [ -- "count"   .= chainCount
-                              "results" .= array (catMaybes results)
+    jsonToRepJson $ AT.object [ "count"   .= M.size trigrams'
+                              , "results" .= array (map tojson trigrams)
                               ]
-
 
 getReindexR :: Handler RepHtml
 getReindexR = defaultLayout $ do

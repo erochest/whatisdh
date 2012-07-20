@@ -5,9 +5,13 @@ module Text.Index
     , trigrams
     , readtri
     , showtri
+    , accumTrigrams
+    , Trigram
     ) where
 
+import qualified Data.HashMap.Strict as M
 import qualified Data.HashSet as S
+import qualified Data.List as L
 import           Data.Maybe
 import qualified Data.Text as T
 import           Import
@@ -40,4 +44,11 @@ toTuple _            = Nothing
 trigrams :: [a] -> [(a, a, a)]
 trigrams (a: (as@(b: (c: _)))) = (a, b, c) : trigrams as
 trigrams _                     = []
+
+accumTrigrams :: [Document] -> M.HashMap Trigram Int
+accumTrigrams =
+    L.foldl' accum M.empty . concat . catMaybes . map (fmap readtri . documentTrigrams)
+    where
+        accum :: M.HashMap Trigram Int -> Trigram -> M.HashMap Trigram Int
+        accum m t = M.insertWith (+) t 1 m
 
