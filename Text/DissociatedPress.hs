@@ -35,21 +35,27 @@ dissociate :: [Trigram] -> IO [T.Text]
 dissociate trigrams = do
     (i0:indexes) <- randoms =<< newMTGen Nothing
     let (a, b) = bigvector `ri` i0
-        output = a : b : L.zipWith3 (press bigindex) output (L.drop 1 output) indexes
+        output = a : b : L.zipWith3 (press bigvector bigindex)
+                                    output
+                                    (L.drop 1 output)
+                                    indexes
     return output
     where
         bigindex  = M.map optimizeIndex $ L.foldl' buildBigramIndex' M.empty trigrams
         bigvector = V.fromList $ M.keys bigindex
 
         buildBigramIndex' :: BigramIndex' -> Trigram -> BigramIndex'
-        buildBigramIndex' index (t1, t2, t3) = undefined
+        buildBigramIndex' index (t1, t2, t3) =
+            M.insertWith S.union (t1, t2) (S.singleton t3) index
 
         optimizeIndex :: TokenSet -> TokenVector
-        optimizeIndex tset = undefined
+        optimizeIndex = V.fromList . S.toList
 
         ri :: V.Vector a -> Double -> a
         ri v di = (v V.!) . truncate . (di *) . fromIntegral $ V.length v
 
-        press :: BigramIndex -> T.Text -> T.Text -> Double -> T.Text
-        press index a b r = undefined
+        press :: BigramVector -> BigramIndex -> T.Text -> T.Text -> Double -> T.Text
+        press vector index a b r = maybe rtoken (flip ri r) $ M.lookup bigram index
+            where bigram      = (a, b)
+                  (rtoken, _) = vector `ri` r
 
