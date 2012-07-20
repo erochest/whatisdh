@@ -14,28 +14,7 @@ Document
     uploadedOn UTCTime default=now()
     hash Text
     content Text
+    trigrams Text Maybe
     UniqueDocument hash
     deriving Show
-
-TokenType
-    text Text
-    tokenCategory TokenCategory
-    UniqueTokenType text
-
-TokenIndex
-    tokenId TokenTypeId
-    documentId DocumentId
-    freq Int default=0
-    UniqueIndex tokenId documentId
-
-Bigram
-    fstToken TokenTypeId
-    sndToken TokenTypeId
-    UniqueBigram fstToken sndToken
-
-TokenChain
-    bigram BigramId
-    next TokenTypeId
-    frequency Int
-    UniqueChain bigram next
 

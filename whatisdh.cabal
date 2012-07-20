@@ -1,5 +1,5 @@
 name:              whatisdh
-version:           0.0.0
+version:           0.1.0
 license:           BSD3
 license-file:      LICENSE
 author:            Eric Rochester
@@ -35,6 +35,8 @@ library
                      Handler.User
                      Handler.Debug
                      Database.Index
+                     Text.DissociatedPress
+                     Text.Index
                      Text.Tokenizer
                      Utils
                      Utils.Auth
@@ -99,6 +101,9 @@ library
                  , yesod-persistent              >= 1.0        && < 1.2
                  , split                         >= 0.1        && < 0.3
                  , resourcet                     >= 0.3        && < 0.5
+                 , hashable                      >= 1.1        && < 1.3
+                 , mersenne-random               >= 1.0        && < 1.2
+                 , vector                        >= 0.8        && < 0.10
 
 executable         whatisdh
     if flag(library-only)
