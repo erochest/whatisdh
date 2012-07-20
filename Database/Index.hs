@@ -62,8 +62,6 @@ reIndexAll chunkSize = do
     -- It may be more efficient to page through the results at the DB level and
     -- to run each call to indexDocs in its own transaction.
     (docs :: [Entity Document]) <- selectList [] []
-    let docChunks = case chunkSize of
-            Just cs -> splitEvery cs docs
-            Nothing -> [docs]
+    let docChunks = maybe [docs] (flip splitEvery docs) chunkSize
     concat <$> mapM indexDocs docChunks
 
