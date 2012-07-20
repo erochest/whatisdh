@@ -33,7 +33,7 @@ type BigramVector = V.Vector Bigram
 
 dissociate :: [Trigram] -> IO [T.Text]
 dissociate trigrams = do
-    (i0:indexes) <- randoms =<< newMTGen Nothing
+    (i0:indexes) <- randoms =<< getStdGen
     let (a, b) = bigvector `ri` i0
         output = a : b : L.zipWith3 (press bigvector bigindex)
                                     output
