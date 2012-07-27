@@ -19,7 +19,7 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.List as L
 import           Data.Monoid
 import qualified Data.Text as T
-import           Text.Blaze.Html5
+import           Text.Blaze.Html5 hiding (a)
 import           Prelude
 import           Yesod.Core
 import           Yesod.Form

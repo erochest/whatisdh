@@ -12,18 +12,11 @@ module Database.Index
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Resource (MonadThrow, MonadUnsafeIO)
-import qualified Data.List as L
 import           Data.List.Split (splitEvery)
 import           Data.Maybe
-import           Data.Monoid
-import qualified Data.HashMap.Strict as M
-import qualified Data.HashSet as S
-import qualified Data.Text as T
 import           Database.Persist
 import           Database.Persist.GenericSql.Raw
-import           Database.Persist.Store
 import           Import
-import           System.IO (stdout, hFlush)
 import           Text.Index (indexDocument)
 
 updateVal :: entity -> Entity entity -> Entity entity
@@ -43,11 +36,6 @@ indexDocs docs = mapM_ updateTrigrams docs' >> return docs'
         modify = modifyEntity entityVal updateVal indexDocument
         updateTrigrams (Entity key doc) =
             update key [ DocumentTrigrams =. (documentTrigrams doc) ]
-
-logLine :: MonadIO m => String -> m ()
-logLine msg = liftIO (putStrLn msg >> hFlush stdout)
-
-type IndexKey = (Int, T.Text)
 
 deleteIndex :: forall (b :: (* -> *) -> * -> *) (m :: * -> *). (MonadIO (b m), PersistQuery b m)
             => b m ()

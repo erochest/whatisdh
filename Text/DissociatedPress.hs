@@ -11,7 +11,7 @@ import qualified Data.Text as T
 import qualified Data.Vector as V
 import           Prelude
 import           System.Random.Mersenne
-import           Text.Index (Trigram, TrigramIndex)
+import           Text.Index (Trigram)
 
 -- | Aliases for each stage of the processing.
 
