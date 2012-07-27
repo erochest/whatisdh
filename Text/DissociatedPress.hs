@@ -32,6 +32,7 @@ type BigramVector = V.Vector Bigram
 -- from the indexes.
 
 dissociate :: [Trigram] -> IO [T.Text]
+dissociate []       = return []
 dissociate trigrams = do
     (i0:indexes) <- randoms =<< getStdGen
     let (a, b) = bigvector `ri` i0
