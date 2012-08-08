@@ -27,5 +27,3 @@
         $nothing
           <li>
             <a href=@{AuthR LoginR}>Login
-          <li>
-            <a href=@{UserNewR}>Register
