@@ -11,7 +11,7 @@ import qualified Data.Text as T
 import qualified Data.Vector as V
 import           Prelude
 import           System.Random.Mersenne
-import           Text.Index (Trigram, TrigramIndex)
+import           Text.Index (Trigram)
 
 -- | Aliases for each stage of the processing.
 
@@ -32,6 +32,7 @@ type BigramVector = V.Vector Bigram
 -- from the indexes.
 
 dissociate :: [Trigram] -> IO [T.Text]
+dissociate []       = return []
 dissociate trigrams = do
     (i0:indexes) <- randoms =<< getStdGen
     let (a, b) = bigvector `ri` i0

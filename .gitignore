@@ -1,3 +1,5 @@
 .hsenv
 dist
 data
+*.hi
+*.o

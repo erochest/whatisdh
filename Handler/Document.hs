@@ -60,7 +60,7 @@ postDocNewR = do
                                Nothing
             docId <- runDB $ do
                 did <- insert doc
-                indexDocs [Entity did doc]
+                _   <- indexDocs [Entity did doc]
                 return did
             redirect $ DocR docId
         FormFailure msgs -> do

@@ -69,6 +69,18 @@ def destroy():
     run('rm -rf ~/whatisdh')
 
 
+@task
+def maintenance(state='on'):
+    """Turns maintenance on and off on heroku.
+
+    Takes a 'state' parameter with the value 'on' (default) or 'off'.
+
+    """
+
+    assert state in ('on', 'off')
+    local('heroku maintenance:{0}'.format(state))
+
+
 # Secondary Tasks
 
 

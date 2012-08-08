@@ -9,7 +9,6 @@ import           Data.Attoparsec.Text
 import qualified Data.Attoparsec.Text as AT
 import qualified Data.Char as C
 import qualified Data.List as L
-import           Data.Maybe (maybe)
 import           Data.Monoid
 import qualified Data.Text as T
 import           Import
@@ -35,9 +34,6 @@ token =   skipWhile C.isSpace >>
 
 parseToken :: (Char -> Bool) -> TokenCategory -> Parser (Token, TokenCategory)
 parseToken predicate category = (flip (,) category . T.toLower) <$> takeWhile1 predicate
-
-whitespaceToken :: Parser (Token, TokenCategory)
-whitespaceToken = parseToken C.isSpace WhiteSpaceToken
 
 punctuationToken :: Parser (Token, TokenCategory)
 punctuationToken = parseToken C.isPunctuation PunctuationToken

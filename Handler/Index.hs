@@ -15,22 +15,15 @@ import           Control.Exception hiding (Handler)
 import           Data.Aeson
 import qualified Data.Aeson.Types as AT
 import           Data.Ord
-import qualified Data.Conduit as C
-import qualified Data.Conduit.List as CL
 import qualified Data.HashMap.Strict as M
 import qualified Data.List as L
-import           Data.Maybe (catMaybes)
-import           Data.Monoid
 import qualified Data.Text as T
 import           Data.Time
 import           Database.Index (reIndexAll)
-import           Database.Persist.GenericSql.Raw
 import           Database.Persist.Postgresql
-import           Database.Persist.Store
 import           Import
 import           Text.Coffee
-import           Text.Index
-import           System.IO
+import           Text.Index hiding (trigrams)
 
 getIndexR :: Handler RepHtml
 getIndexR = defaultLayout $ do
@@ -48,6 +41,7 @@ getIndexR = defaultLayout $ do
 getOrderF :: Maybe T.Text -> ([a] -> [a])
 getOrderF (Just "asc")  = id
 getOrderF (Just "desc") = L.reverse
+getOrderF (Just _)      = id
 getOrderF Nothing       = id
 
 getIndexDataR :: Handler RepJson
@@ -61,6 +55,7 @@ getIndexDataR = do
                     Just "token_1" -> comparing (fst3 . fst)
                     Just "token_2" -> comparing (snd3 . fst)
                     Just "token_3" -> comparing (trd3 . fst)
+                    Just _         -> comparing snd
                     Nothing        -> comparing snd
         order    = getOrderF msort
         offset   = maybe 0   id moffset
@@ -129,5 +124,4 @@ postReindexR = do
                     return (dc, tc, bc, trc)
             end <- getCurrentTime
             return (dCount, tCount, bCount, trCount, end `diffUTCTime` start)
-            where log msg = liftIO (putStrLn msg >> hFlush stdout)
 
