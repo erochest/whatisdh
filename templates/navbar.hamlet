@@ -24,8 +24,3 @@
           <li>
             <a href=@{UserR (entityKey user)}>
               #{userIdent (entityVal user)}
-        $nothing
-          <li>
-            <a href=@{AuthR LoginR}>Login
-          <li>
-            <a href=@{UserNewR}>Register
