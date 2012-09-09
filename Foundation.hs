@@ -9,6 +9,8 @@ module Foundation
     , Form
     , maybeAuth
     , requireAuth
+    , setSiteTitle
+    , setSiteTitleMsg
     , module Settings
     , module Model
     ) where
@@ -36,6 +38,8 @@ import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import Utils.Auth
+import qualified Data.Text as T
+import Data.Monoid ((<>))
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -194,3 +198,17 @@ instance RenderMessage App FormMessage where
 -- wiki:
 --
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
+
+-- | This retrieves the title from configuration and sets the page title.
+setSiteTitle :: Widget
+setSiteTitle =
+    (toHtml . extraTitle . appExtra . settings) `fmap` lift getYesod >>=
+    setTitle
+
+-- | This retrieves the title from configuration, appends the parameter, and
+-- sets the page's title.
+setSiteTitleMsg :: T.Text -> Widget
+setSiteTitleMsg msg =
+    (toHtml . (<> msg) . extraTitle . appExtra . settings) `fmap` lift getYesod >>=
+    setTitle
+

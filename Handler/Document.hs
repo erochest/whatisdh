@@ -29,7 +29,7 @@ getDocListR = do
     docs   <- runDB $ selectList [] [Asc DocumentTitle]
     canAdd <- visible DocNewR True
     defaultLayout $ do
-        setTitle "What is DH? Documents"
+        setSiteTitleMsg " | Documents"
         $(widgetFile "doclist")
 
 -- DocNewR
@@ -77,7 +77,7 @@ getDocR docId = do
     uploadingUser <- runDB . get $ documentUploadedBy doc
     admin         <- (== Authorized) <$> isAdmin
     defaultLayout $ do
-        setTitle . (mappend "What is DH? ") . toHtml $ documentTitle doc
+        setSiteTitleMsg $ " " <> documentTitle  doc
         $(widgetFile "doc")
 
 postDocR :: DocumentId -> Handler RepHtml

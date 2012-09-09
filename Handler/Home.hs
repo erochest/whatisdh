@@ -22,6 +22,6 @@ getHomeR = do
     tokens   <- liftIO $ dissociate trigrams
     let press = T.intercalate " " $ L.take 500 tokens
     defaultLayout $ do
-        setTitle "What is DH?"
+        setSiteTitle
         $(widgetFile "homepage")
 

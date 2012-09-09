@@ -27,7 +27,7 @@ import           Text.Index hiding (trigrams)
 
 getIndexR :: Handler RepHtml
 getIndexR = defaultLayout $ do
-    setTitle "What is DH? Token Index"
+    setSiteTitleMsg " | Token Index"
 
     addScript $ StaticR js_jquery_1_7_2_min_js
     addScript $ StaticR js_underscore_min_js
@@ -79,7 +79,7 @@ getIndexDataR = do
 
 getReindexR :: Handler RepHtml
 getReindexR = defaultLayout $ do
-    setTitle "What is DH? Re-index Documents"
+    setSiteTitleMsg " | Re-index Documents"
     addScript $ StaticR js_jquery_1_7_2_min_js
     toWidget $(coffeeFile "templates/reindex.coffee")
     $(widgetFile "reindex")

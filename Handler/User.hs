@@ -34,7 +34,7 @@ getUserListR = do
     isCurrentUser <- isSameUser <$> requireAuthId
     users <- runDB $ selectList [] [Asc UserIdent]
     defaultLayout $ do
-        setTitle "What is DH? Users"
+        setSiteTitleMsg " | Users"
         $(widgetFile "userlist")
 
 -- UserR
@@ -44,7 +44,7 @@ getUserR uid = do
     (Entity currentUserId currentUser) <- requireAuth
     user <- runDB $ get404 uid
     defaultLayout $ do
-        setTitle . ("What is DH? " `mappend`) . toHtml $ userIdent user
+        setSiteTitleMsg (" | " <> userIdent user)
         addScript $ StaticR js_jquery_1_7_2_min_js
         toWidget $(coffeeFile "templates/user.coffee")
         $(widgetFile "user")
