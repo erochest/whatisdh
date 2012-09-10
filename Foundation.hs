@@ -111,8 +111,10 @@ instance Yesod App where
     isAuthorized _                _     = return Authorized
 
     defaultLayout widget = do
-        master <- getYesod
-        mmsg <- getMessage
+        master   <- getYesod
+        mmsg     <- getMessage
+        currSub  <- getCurrentRoute
+        toMaster <- getRouteToMaster
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
@@ -123,7 +125,8 @@ instance Yesod App where
 
         pc <- widgetToPageContent $ do
             muser  <- lift maybeAuth
-            let navbar = $(widgetFile "navbar")
+            let mcurr = fmap toMaster currSub
+                navbar = $(widgetFile "navbar")
             $(widgetFile "normalize")
             addStylesheet $ StaticR css_bootstrap_css
             addStylesheet $ StaticR css_style_css

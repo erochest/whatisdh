@@ -4,23 +4,26 @@
       <a .brand href=@{HomeR}>
         What is DH?
       <ul .nav.pull-right>
-        <li>
+        <li :(==) (Just HomeR) mcurr:.active>
           <a href=@{HomeR}>
             Home
-        <li>
+        <li :(==) (Just AboutR) mcurr:.active>
           <a href=@{AboutR}>
             About
-          <li>
-            <a href=@{DocListR}>Documents
+          <li :(==) (Just DocListR) mcurr:.active>
+            <a href=@{DocListR}>
+              Documents
         $maybe user <- muser
           $if userAdmin (entityVal user)
-            <li>
-              <a href=@{IndexR}>Index
+            <li :(==) (Just IndexR) mcurr:.active>
+              <a href=@{IndexR}>
+                Index
           $if userSuper (entityVal user)
-            <li>
-              <a href=@{UserListR}>Users
+            <li :(==) (Just UserListR) mcurr:.active>
+              <a href=@{UserListR}>
+                Users
           <li>
             <a href=@{AuthR LogoutR}>Logout
-          <li>
+          <li :(==) (Just (UserR (entityKey user))) mcurr:.active>
             <a href=@{UserR (entityKey user)}>
               #{userIdent (entityVal user)}
