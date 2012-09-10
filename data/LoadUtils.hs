@@ -24,7 +24,7 @@ import qualified Text.XML as X
 loadDocument :: (PersistStore b m, MonadIO (b m))
              => T.Text
              -> (X.Document -> [(T.Text, T.Text)])
-             -> Key t (Mdl.UserGeneric t)
+             -> Mdl.UserId
              -> X.Document
              -> T.Text
              -> b m ()
