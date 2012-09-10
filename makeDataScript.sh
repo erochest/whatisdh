@@ -1,4 +1,4 @@
 #!/bin/sh
 
-ghc --make -i. -XFlexibleContexts -XQuasiQuotes -XTemplateHaskell -XOverloadedStrings -XKindSignatures -XTypeFamilies -XGADTs "$@"
+ghc --make -i. -idata -XFlexibleContexts -XQuasiQuotes -XTemplateHaskell -XOverloadedStrings -XKindSignatures -XTypeFamilies -XGADTs -Wall "$@"
 
